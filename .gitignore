@@ -16,6 +16,8 @@ coverage/
 Wordle Lab Take-home Exercise.pdf
 .claude/
 
+.vscode
+
 # OS and editor noise
 .DS_Store
 *.log
