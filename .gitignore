@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Test output
+coverage/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+Wordle Lab Take-home Exercise.pdf
+.claude/
+
+# OS and editor noise
+.DS_Store
+*.log

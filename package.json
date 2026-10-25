@@ -1,0 +1,11 @@
+{
+  "name": "wordle-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playable Wordle with an entropy-based solver that suggests and explains the next guess.",
+  "license": "MIT",
+  "packageManager": "yarn@1.22.22",
+  "workspaces": [
+    "packages/*"
+  ]
+}
