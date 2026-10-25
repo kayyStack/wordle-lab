@@ -5,6 +5,10 @@
   "description": "Playable Wordle with an entropy-based solver that suggests and explains the next guess.",
   "license": "MIT",
   "packageManager": "yarn@1.22.22",
+  "scripts": {
+    "build": "yarn workspace server build",
+    "test": "yarn workspace server test"
+  },
   "workspaces": [
     "packages/*"
   ]
