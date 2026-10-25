@@ -19,7 +19,7 @@ export function score(guess: string, answer: string): TileColour[] {
   assertWord(answer, 'answer');
 
   const colours: TileColour[] = ['gray', 'gray', 'gray', 'gray', 'gray'];
-  // Occurence of each letter in the answer that are not green (Indexed on the 0-25 scale representing A to Z)
+  // Occurrence of each letter in the answer that are not green (Indexed on the 0-25 scale representing A to Z)
   const counts = new Array<number>(26).fill(0);
 
   for (let i = 0; i < WORD_LENGTH; i++) {
@@ -30,7 +30,7 @@ export function score(guess: string, answer: string): TileColour[] {
     }
   }
 
-  /* Find letters in the guess that have occurence in the answer and paint them yellow */
+  /* Find letters in the guess that have occurrence in the answer and paint them yellow */
   for (let i = 0; i < WORD_LENGTH; i++) {
     const index = letterIndex(guess, i);
     if (colours[i] !== 'green' && counts[index] > 0) {
