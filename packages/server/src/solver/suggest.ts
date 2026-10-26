@@ -40,13 +40,17 @@ export function suggest(
   }
 
   ranked.sort(byBestFirst);
-  return ranked
-    .slice(0, count)
-    .map((guess) => ({ ...guess, reason: reason(guess, remainingWords.length) }));
+  return ranked.slice(0, count).map((guess) => ({
+    ...guess,
+    reason: reason(guess, remainingWords.length),
+  }));
 }
 
 /** Sizes of the groups the remaining words fall into, by the colours `guess` would show. */
-function groupSizes(guess: string, remainingWords: readonly string[]): number[] {
+function groupSizes(
+  guess: string,
+  remainingWords: readonly string[],
+): number[] {
   const sizes = new Map<string, number>();
   for (const word of remainingWords) {
     const pattern = score(guess, word).join();

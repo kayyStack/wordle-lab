@@ -96,8 +96,8 @@ describe('Game', () => {
   });
 
   it('refuses to start with a secret that cannot be guessed', () => {
-    expect(() => new Game('CRANE', possibleAnswers, new Set(['SLATE']))).toThrow(
-      'not in the allowed guesses',
-    );
+    expect(
+      () => new Game('CRANE', possibleAnswers, new Set(['SLATE'])),
+    ).toThrow('not in the allowed guesses');
   });
 });

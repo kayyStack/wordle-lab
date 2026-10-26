@@ -33,7 +33,9 @@ export function loadWordList(file: string): string[] {
     const where = `${file} line ${i + 1}`;
     const allLetters = [...word].every((c) => c >= 'A' && c <= 'Z');
     if (word.length !== WORD_LENGTH || !allLetters) {
-      throw new Error(`${where}: "${lines[i].trim()}" is not a ${WORD_LENGTH}-letter word`);
+      throw new Error(
+        `${where}: "${lines[i].trim()}" is not a ${WORD_LENGTH}-letter word`,
+      );
     }
     if (seen.has(word)) {
       throw new Error(`${where}: "${word}" is listed twice`);

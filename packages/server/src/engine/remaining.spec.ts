@@ -45,10 +45,15 @@ describe('Game.remainingWords', () => {
   it('always keeps the secret and matches a full re-filter, over 200 random games', () => {
     const random = seededRandom(2026);
     const guessList = [...allowedGuesses];
-    const pick = <T>(list: readonly T[]) => list[Math.floor(random() * list.length)];
+    const pick = <T>(list: readonly T[]) =>
+      list[Math.floor(random() * list.length)];
 
     for (let n = 0; n < 200; n++) {
-      const game = new Game(pick(possibleAnswers), possibleAnswers, allowedGuesses);
+      const game = new Game(
+        pick(possibleAnswers),
+        possibleAnswers,
+        allowedGuesses,
+      );
 
       while (game.status === 'playing') {
         game.guess(pick(guessList));
@@ -56,7 +61,9 @@ describe('Game.remainingWords', () => {
         expect(game.remainingWords).toContain(game.secret);
         // Independent check: filter every possible answer by every guess so far
         const refiltered = possibleAnswers.filter((word) =>
-          game.guesses.every((g) => score(g.word, word).join() === g.colours.join()),
+          game.guesses.every(
+            (g) => score(g.word, word).join() === g.colours.join(),
+          ),
         );
         expect(game.remainingWords).toEqual(refiltered);
       }

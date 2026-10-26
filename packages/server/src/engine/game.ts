@@ -10,7 +10,10 @@ export interface Guess {
   colours: TileColour[];
 }
 
-export type GameErrorCode = 'not-five-letters' | 'not-in-word-list' | 'game-over';
+export type GameErrorCode =
+  | 'not-five-letters'
+  | 'not-in-word-list'
+  | 'game-over';
 
 /** A guess the game refused. It does not use up a turn. */
 export class GameError extends Error {
@@ -64,10 +67,16 @@ export class Game {
 
     const word = input.trim().toUpperCase();
     if (word.length !== WORD_LENGTH) {
-      throw new GameError('not-five-letters', `Guesses must be ${WORD_LENGTH} letters`);
+      throw new GameError(
+        'not-five-letters',
+        `Guesses must be ${WORD_LENGTH} letters`,
+      );
     }
     if (!this.allowedGuesses.has(word)) {
-      throw new GameError('not-in-word-list', `${word} is not in the word list`);
+      throw new GameError(
+        'not-in-word-list',
+        `${word} is not in the word list`,
+      );
     }
 
     const result = { word, colours: score(word, this.secret) };

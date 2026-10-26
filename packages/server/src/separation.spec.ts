@@ -21,7 +21,10 @@ function importsIn(dir: string): Import[] {
     const file = path.join(dir, name);
     const { importedFiles } = ts.preProcessFile(readFileSync(file, 'utf8'));
     for (const imported of importedFiles) {
-      found.push({ file: path.relative(__dirname, file), from: imported.fileName });
+      found.push({
+        file: path.relative(__dirname, file),
+        from: imported.fileName,
+      });
     }
   }
   return found;
@@ -33,7 +36,10 @@ describe('separation of game logic', () => {
 
   it('finds the imports it is checking', () => {
     expect(engine).toContainEqual({ file: 'engine/game.ts', from: './score' });
-    expect(solver).toContainEqual({ file: 'solver/suggest.ts', from: '../engine/score' });
+    expect(solver).toContainEqual({
+      file: 'solver/suggest.ts',
+      from: '../engine/score',
+    });
   });
 
   it('keeps the engine and solver free of web code', () => {
@@ -45,7 +51,10 @@ describe('separation of game logic', () => {
 
   it('keeps the engine independent of the solver', () => {
     const solverImports = engine.filter((i) => {
-      const target = path.resolve(path.dirname(path.join(__dirname, i.file)), i.from);
+      const target = path.resolve(
+        path.dirname(path.join(__dirname, i.file)),
+        i.from,
+      );
       return target.startsWith(SOLVER_DIR);
     });
     expect(solverImports).toEqual([]);
