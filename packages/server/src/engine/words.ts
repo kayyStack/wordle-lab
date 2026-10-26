@@ -6,15 +6,18 @@ const DATA_DIR = path.join(__dirname, '../../data');
 
 export interface WordLists {
   /** Words that can be the secret */
-  answers: string[];
-  /** Words accepted as a guess: the answers plus the extra guesses */
-  allowed: Set<string>;
+  possibleAnswers: string[];
+  /** Words accepted as a guess: the possible answers plus the extra guesses */
+  allowedGuesses: Set<string>;
 }
 
 export function loadWords(dataDir: string = DATA_DIR): WordLists {
-  const answers = loadWordList(path.join(dataDir, 'answers.txt'));
+  const possibleAnswers = loadWordList(path.join(dataDir, 'answers.txt'));
   const extraGuesses = loadWordList(path.join(dataDir, 'extra-guesses.txt'));
-  return { answers, allowed: new Set([...answers, ...extraGuesses]) };
+  return {
+    possibleAnswers,
+    allowedGuesses: new Set([...possibleAnswers, ...extraGuesses]),
+  };
 }
 
 /** Reads one word per line, uppercased. Blank lines are skipped. */

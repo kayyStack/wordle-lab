@@ -4,20 +4,20 @@ import * as path from 'path';
 import { loadWordList, loadWords } from './words';
 
 describe('loadWords', () => {
-  const { answers, allowed } = loadWords();
+  const { possibleAnswers, allowedGuesses } = loadWords();
 
   it('loads the 2,315 original answers, uppercased', () => {
-    expect(answers).toHaveLength(2315);
-    expect(answers.slice(0, 3)).toEqual(['ABACK', 'ABASE', 'ABATE']);
+    expect(possibleAnswers).toHaveLength(2315);
+    expect(possibleAnswers.slice(0, 3)).toEqual(['ABACK', 'ABASE', 'ABATE']);
   });
 
   it('allows 12,972 guesses: the answers plus 10,657 extra guesses', () => {
-    expect(allowed.size).toBe(12972);
+    expect(allowedGuesses.size).toBe(12972);
   });
 
   it('allows an extra guess that can never be the answer', () => {
-    expect(allowed.has('AAHED')).toBe(true);
-    expect(answers).not.toContain('AAHED');
+    expect(allowedGuesses.has('AAHED')).toBe(true);
+    expect(possibleAnswers).not.toContain('AAHED');
   });
 });
 

@@ -26,11 +26,11 @@ export class Game {
   private readonly history: Guess[] = [];
 
   constructor(
-    readonly answer: string,
-    private readonly allowed: Set<string>,
+    readonly secret: string,
+    private readonly allowedGuesses: Set<string>,
   ) {
-    if (!allowed.has(answer)) {
-      throw new Error(`answer "${answer}" is not in the allowed words`);
+    if (!allowedGuesses.has(secret)) {
+      throw new Error(`secret "${secret}" is not in the allowed guesses`);
     }
   }
 
@@ -40,7 +40,7 @@ export class Game {
 
   get status(): GameStatus {
     const last = this.history[this.history.length - 1];
-    if (last?.word === this.answer) return 'won';
+    if (last?.word === this.secret) return 'won';
     if (this.history.length >= MAX_GUESSES) return 'lost';
     return 'playing';
   }
@@ -54,11 +54,11 @@ export class Game {
     if (word.length !== WORD_LENGTH) {
       throw new GameError('not-five-letters', `Guesses must be ${WORD_LENGTH} letters`);
     }
-    if (!this.allowed.has(word)) {
+    if (!this.allowedGuesses.has(word)) {
       throw new GameError('not-in-word-list', `${word} is not in the word list`);
     }
 
-    const result = { word, colours: score(word, this.answer) };
+    const result = { word, colours: score(word, this.secret) };
     this.history.push(result);
     return result;
   }
