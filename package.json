@@ -7,9 +7,14 @@
   "packageManager": "yarn@1.22.22",
   "scripts": {
     "build": "yarn workspace server build",
-    "test": "yarn workspace server test"
+    "test": "yarn workspace server test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "~3.8.3"
+  }
 }

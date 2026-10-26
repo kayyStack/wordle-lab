@@ -1,0 +1,4 @@
+dist/
+coverage/
+packages/server/data/
+yarn.lock
