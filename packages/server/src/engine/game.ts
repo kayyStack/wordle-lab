@@ -1,3 +1,4 @@
+import { matchingWords } from './remaining';
 import { score, TileColour, WORD_LENGTH } from './score';
 
 export const MAX_GUESSES = 6;
@@ -24,18 +25,29 @@ export class GameError extends Error {
 
 export class Game {
   private readonly history: Guess[] = [];
+  private remaining: readonly string[];
 
   constructor(
     readonly secret: string,
+    possibleAnswers: readonly string[],
     private readonly allowedGuesses: Set<string>,
   ) {
+    if (!possibleAnswers.includes(secret)) {
+      throw new Error(`secret "${secret}" is not one of the possible answers`);
+    }
     if (!allowedGuesses.has(secret)) {
       throw new Error(`secret "${secret}" is not in the allowed guesses`);
     }
+    this.remaining = [...possibleAnswers];
   }
 
   get guesses(): readonly Guess[] {
     return this.history;
+  }
+
+  /** Possible answers that still fit every guess so far */
+  get remainingWords(): readonly string[] {
+    return this.remaining;
   }
 
   get status(): GameStatus {
@@ -60,6 +72,7 @@ export class Game {
 
     const result = { word, colours: score(word, this.secret) };
     this.history.push(result);
+    this.remaining = matchingWords(this.remaining, result);
     return result;
   }
 }
