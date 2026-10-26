@@ -7,7 +7,6 @@
     "outDir": "./dist",
     "sourceMap": true,
     "removeComments": true,
-    "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
