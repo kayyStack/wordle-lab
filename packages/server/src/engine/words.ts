@@ -9,6 +9,8 @@ export interface WordLists {
   possibleAnswers: string[];
   /** Words accepted as a guess: the possible answers plus the extra guesses */
   allowedGuesses: Set<string>;
+  /** The solver's top suggestions before any guess (checked by first-hint.spec.ts) */
+  firstHintWords: string[];
 }
 
 export function loadWords(dataDir: string = DATA_DIR): WordLists {
@@ -17,6 +19,7 @@ export function loadWords(dataDir: string = DATA_DIR): WordLists {
   return {
     possibleAnswers,
     allowedGuesses: new Set([...possibleAnswers, ...extraGuesses]),
+    firstHintWords: loadWordList(path.join(dataDir, 'first-hint.txt')),
   };
 }
 

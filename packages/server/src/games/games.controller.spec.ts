@@ -141,6 +141,21 @@ describe('games API', () => {
     });
   });
 
+  it('gives the first hint without searching every allowed guess', async () => {
+    const id = startGame('SHAKE');
+    const started = Date.now();
+    const res = await request('GET', `/games/${id}/hint`);
+    expect(Date.now() - started).toBeLessThan(1000);
+    expect(res.body.remainingWords).toBe(2315);
+    expect(res.body.suggestions.map((s: { word: string }) => s.word)).toEqual([
+      'SOARE',
+      'ROATE',
+      'RAISE',
+      'RAILE',
+      'REAST',
+    ]);
+  });
+
   it('gives five suggestions with reasons', async () => {
     const id = startGame('SHAKE');
     await request('POST', `/games/${id}/guesses`, { word: 'crane' });

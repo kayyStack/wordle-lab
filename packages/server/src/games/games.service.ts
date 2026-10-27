@@ -62,7 +62,13 @@ export class GamesService {
     if (game.status !== 'playing') {
       throw new GameError('game-over', 'This game is already over');
     }
-    return suggest(game.remainingWords, this.words.allowedGuesses);
+    // Before any guess every game has the same remaining words, so the best
+    // first guesses are known in advance; only their details are computed.
+    const candidates =
+      game.guesses.length === 0
+        ? this.words.firstHintWords
+        : this.words.allowedGuesses;
+    return suggest(game.remainingWords, candidates);
   }
 
   private randomSecret(): string {
