@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { Game } from '../engine/game';
 import { loadWords } from '../engine/words';
 import { suggest, Suggestion } from '../solver/suggest';
+import { apiError } from './api-error';
 
 @Injectable()
 export class GamesService {
@@ -22,7 +23,13 @@ export class GamesService {
 
   find(id: string): Game {
     const game = this.games.get(id);
-    if (!game) throw new NotFoundException();
+    if (!game) {
+      throw apiError(
+        404,
+        'game-not-found',
+        'No game with this id. It may have finished or expired.',
+      );
+    }
     return game;
   }
 

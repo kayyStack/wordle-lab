@@ -73,6 +73,71 @@ describe('games API', () => {
     expect(res.body.game).toMatchObject({ status: 'won', secret: 'SHAKE' });
   });
 
+  describe('errors', () => {
+    async function guess(id: string, body: object) {
+      return request('POST', `/games/${id}/guesses`, body);
+    }
+
+    it('refuses a guess that is not five letters', async () => {
+      const res = await guess(startGame('SHAKE'), { word: 'cran' });
+      expect(res).toEqual({
+        status: 400,
+        body: {
+          statusCode: 400,
+          code: 'not-five-letters',
+          message: 'Guesses must be 5 letters',
+        },
+      });
+    });
+
+    it('refuses a word that is not in the word list', async () => {
+      const res = await guess(startGame('SHAKE'), { word: 'zzzzz' });
+      expect(res.status).toBe(400);
+      expect(res.body.code).toBe('not-in-word-list');
+    });
+
+    it('refuses a guess once the game is over', async () => {
+      const id = startGame('SHAKE');
+      await guess(id, { word: 'shake' });
+      const res = await guess(id, { word: 'crane' });
+      expect(res.status).toBe(409);
+      expect(res.body.code).toBe('game-over');
+    });
+
+    it('reports an unknown game id', async () => {
+      const guessRes = await guess('no-such-game', { word: 'crane' });
+      const hintRes = await request('GET', '/games/no-such-game/hint');
+      for (const res of [guessRes, hintRes]) {
+        expect(res.status).toBe(404);
+        expect(res.body.code).toBe('game-not-found');
+      }
+    });
+
+    it('refuses a body without a word', async () => {
+      const id = startGame('SHAKE');
+      for (const body of [{}, { word: 5 }]) {
+        const res = await guess(id, body);
+        expect(res.status).toBe(400);
+        expect(res.body.code).toBe('invalid-body');
+      }
+    });
+
+    it('refuses a request with no JSON body', async () => {
+      const url = `${baseUrl}/games/${startGame('SHAKE')}/guesses`;
+      const noBody = await fetch(url, { method: 'POST' });
+      const textBody = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'text/plain' },
+        body: 'crane',
+      });
+      for (const res of [noBody, textBody]) {
+        const json: any = await res.json();
+        expect(res.status).toBe(400);
+        expect(json.code).toBe('invalid-body');
+      }
+    });
+  });
+
   it('gives five suggestions with reasons', async () => {
     const id = startGame('SHAKE');
     await request('POST', `/games/${id}/guesses`, { word: 'crane' });

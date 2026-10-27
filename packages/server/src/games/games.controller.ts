@@ -1,8 +1,19 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
 import { Game, MAX_GUESSES } from '../engine/game';
+import { apiError } from './api-error';
+import { GameErrorFilter } from './game-error.filter';
 import { GamesService } from './games.service';
 
 @Controller('games')
+@UseFilters(GameErrorFilter)
 export class GamesController {
   constructor(private readonly games: GamesService) {}
 
@@ -14,7 +25,18 @@ export class GamesController {
 
   @Post(':id/guesses')
   @HttpCode(200)
-  guess(@Param('id') id: string, @Body() body: { word: string }) {
+  guess(
+    @Param('id') id: string,
+    // Undefined when the request has no JSON body
+    @Body() body: { word?: unknown } | undefined,
+  ) {
+    if (typeof body?.word !== 'string') {
+      throw apiError(
+        400,
+        'invalid-body',
+        'Send a JSON body like {"word": "crane"}',
+      );
+    }
     const game = this.games.find(id);
     const guess = game.guess(body.word);
     return { guess, game: toView(id, game) };
