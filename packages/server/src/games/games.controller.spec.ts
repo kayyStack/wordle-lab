@@ -96,12 +96,15 @@ describe('games API', () => {
       expect(res.body.code).toBe('not-in-word-list');
     });
 
-    it('refuses a guess once the game is over', async () => {
+    it('refuses a guess or a hint once the game is over', async () => {
       const id = startGame('SHAKE');
       await guess(id, { word: 'shake' });
-      const res = await guess(id, { word: 'crane' });
-      expect(res.status).toBe(409);
-      expect(res.body.code).toBe('game-over');
+      const guessRes = await guess(id, { word: 'crane' });
+      const hintRes = await request('GET', `/games/${id}/hint`);
+      for (const res of [guessRes, hintRes]) {
+        expect(res.status).toBe(409);
+        expect(res.body.code).toBe('game-over');
+      }
     });
 
     it('reports an unknown game id', async () => {

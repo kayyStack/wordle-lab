@@ -37,8 +37,7 @@ export class GamesController {
         'Send a JSON body like {"word": "crane"}',
       );
     }
-    const game = this.games.find(id);
-    const guess = game.guess(body.word);
+    const { guess, game } = this.games.guess(id, body.word);
     return { guess, game: toView(id, game) };
   }
 
