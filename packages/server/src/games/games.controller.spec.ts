@@ -169,4 +169,18 @@ describe('games API', () => {
         'Splits the 44 remaining words into 21 groups; at worst 6 would be left.',
     });
   });
+
+  it('lets the web page call it from another origin', async () => {
+    const res = await fetch(`${baseUrl}/games`, {
+      method: 'OPTIONS',
+      headers: {
+        origin: 'http://localhost:4173',
+        'access-control-request-method': 'POST',
+      },
+    });
+    expect(res.status).toBe(204);
+    expect(res.headers.get('access-control-allow-origin')).toBe(
+      'http://localhost:4173',
+    );
+  });
 });

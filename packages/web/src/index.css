@@ -1,0 +1,24 @@
+:root {
+  --ground: #4d6e8e;
+  --text: #ffffff;
+  --ink: #1f2b3a;
+  --accent: #ff8a3d;
+  --fraunces: 'Fraunces', serif;
+  --work: 'Work Sans', sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--work);
+}
+
+.display {
+  font-family: var(--fraunces);
+  font-weight: 800;
+  font-variation-settings:
+    'SOFT' 100,
+    'opsz' 144;
+}
