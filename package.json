@@ -7,7 +7,7 @@
   "packageManager": "yarn@1.22.22",
   "scripts": {
     "build": "yarn workspace server build && yarn workspace web build",
-    "test": "yarn workspace server test",
+    "test": "yarn workspace server test && yarn workspace web test",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

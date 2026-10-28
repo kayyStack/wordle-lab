@@ -1,10 +1,17 @@
 :root {
   --ground: #4d6e8e;
   --text: #ffffff;
+  --edge: #b8c9da;
+  --key: #e3eaf1;
   --ink: #1f2b3a;
+  --spent: #93a5b9;
   --accent: #ff8a3d;
+  --green: #3daa5c;
+  --mustard: #f5d547;
   --fraunces: 'Fraunces', serif;
   --work: 'Work Sans', sans-serif;
+  --tile: 64px;
+  --key-height: 54px;
 }
 
 body {
@@ -21,4 +28,185 @@ body {
   font-variation-settings:
     'SOFT' 100,
     'opsz' 144;
+}
+
+.top {
+  padding: 30px 56px;
+}
+
+.brand {
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+
+/* Desktop: words on the left, the game on the right */
+.split {
+  max-width: 1168px;
+  margin: 0 auto;
+  padding: 16px 56px 56px;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 48px 72px;
+}
+
+.side {
+  flex: 0 1 440px;
+}
+
+.game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.board {
+  display: grid;
+  gap: 8px;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: repeat(5, var(--tile));
+  gap: 8px;
+}
+
+.tile {
+  width: var(--tile);
+  height: var(--tile);
+  box-sizing: border-box;
+  border: 2px solid var(--edge);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fraunces);
+  font-weight: 800;
+  font-variation-settings:
+    'SOFT' 100,
+    'opsz' 72;
+  font-size: calc(var(--tile) / 2);
+}
+
+.tile.typed {
+  border-color: var(--text);
+}
+
+.tile.green {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--ink);
+}
+
+.tile.yellow {
+  background: var(--mustard);
+  border-color: var(--mustard);
+  color: var(--ink);
+}
+
+.tile.gray {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.keyboard {
+  width: 540px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.keyboard-row {
+  display: flex;
+  gap: 6px;
+}
+
+.keyboard-row.row-1 {
+  padding: 0 5%;
+}
+
+.key {
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--key-height);
+  border: 0;
+  border-radius: 12px;
+  background: var(--key);
+  color: var(--ink);
+  font-family: var(--work);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.key:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
+
+.key.wide {
+  flex: 1.6 1 0;
+  font-size: 13px;
+}
+
+.key.green {
+  background: var(--green);
+}
+
+.key.yellow {
+  background: var(--mustard);
+}
+
+.key.gray {
+  background: var(--ink);
+  color: var(--spent);
+}
+
+/* Phone: everything stacked, the keyboard full width at the bottom */
+@media (max-width: 600px) {
+  :root {
+    --tile: 46px;
+    --key-height: 52px;
+  }
+
+  .top {
+    padding: 14px 16px;
+  }
+
+  .brand {
+    font-size: 22px;
+  }
+
+  .split {
+    min-height: calc(100vh - 64px);
+    padding: 4px 16px 16px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 32px;
+  }
+
+  .side {
+    flex: none;
+  }
+
+  .game {
+    flex: 1;
+  }
+
+  .keyboard {
+    width: 100%;
+    margin-top: auto;
+  }
+
+  .keyboard-row {
+    gap: 5px;
+  }
+
+  .key {
+    font-size: 14px;
+  }
 }
