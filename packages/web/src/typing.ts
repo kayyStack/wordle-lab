@@ -13,6 +13,21 @@ export function nextTyped(current: string, key: string): string {
   return current;
 }
 
+export type KeyResult = { typed: string } | { submit: string };
+
+/** What a key press does: change the typed letters, or send them as a guess. */
+export function pressKey(
+  typed: string,
+  key: string,
+  locked: boolean,
+): KeyResult {
+  if (locked) return { typed };
+  if (key === 'Enter') {
+    return typed.length === WORD_LENGTH ? { submit: typed } : { typed };
+  }
+  return { typed: nextTyped(typed, key) };
+}
+
 /** The best colour each letter has shown in any guess: green over yellow over gray. */
 export function keyColours(guesses: Guess[]): Record<string, TileColour> {
   const colours: Record<string, TileColour> = {};

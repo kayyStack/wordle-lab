@@ -32,6 +32,30 @@ body {
 
 .top {
   padding: 30px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pill {
+  height: 46px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--work);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.pill.primary {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.pill:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
 }
 
 .brand {
@@ -119,6 +143,10 @@ body {
   gap: 8px;
 }
 
+.keyboard.off {
+  opacity: 0.4;
+}
+
 .keyboard-row {
   display: flex;
   gap: 6px;
@@ -140,6 +168,10 @@ body {
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
+}
+
+.key:disabled {
+  cursor: default;
 }
 
 .key:focus-visible {
@@ -178,6 +210,12 @@ body {
 
   .brand {
     font-size: 22px;
+  }
+
+  .pill {
+    height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
   }
 
   .split {

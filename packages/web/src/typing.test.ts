@@ -1,5 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { keyColours, nextTyped } from './typing.ts';
+import { keyColours, nextTyped, pressKey } from './typing.ts';
+
+describe('pressKey', () => {
+  it('sends five letters on Enter', () => {
+    expect(pressKey('CRANE', 'Enter', false)).toEqual({ submit: 'CRANE' });
+  });
+
+  it('does not send fewer than five letters', () => {
+    expect(pressKey('CRAN', 'Enter', false)).toEqual({ typed: 'CRAN' });
+  });
+
+  it('types letters', () => {
+    expect(pressKey('CRA', 'n', false)).toEqual({ typed: 'CRAN' });
+  });
+
+  it('ignores every key while locked', () => {
+    expect(pressKey('CRANE', 'Enter', true)).toEqual({ typed: 'CRANE' });
+    expect(pressKey('CRA', 'n', true)).toEqual({ typed: 'CRA' });
+  });
+});
 
 describe('nextTyped', () => {
   it('adds letters in capitals', () => {
