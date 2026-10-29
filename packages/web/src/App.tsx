@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Board } from './Board.tsx';
 import { headlineFor } from './headline.ts';
+import { Hint } from './Hint.tsx';
 import { Keyboard } from './Keyboard.tsx';
 import { Side } from './Side.tsx';
 import { keyColours } from './typing.ts';
@@ -15,12 +16,20 @@ export function App() {
     refused,
     revealed,
     over,
+    hint,
     press,
     retry,
+    openHint,
+    closeHint,
     newGame,
   } = useGame();
   const [flash, setFlash] = useState<{ key: string; id: number } | null>(null);
   const guesses = game?.guesses ?? [];
+  // A hint can help while the game is on and the last row has finished flipping
+  const canHint =
+    game?.status === 'playing' &&
+    revealed?.guesses.length === guesses.length &&
+    notice?.kind !== 'unreachable';
 
   function pressAndFlash(key: string) {
     const name = key.length === 1 ? key.toUpperCase() : key;
@@ -49,10 +58,21 @@ export function App() {
         </button>
       </header>
       <main className="split">
-        <Side
-          headline={headlineFor(revealed, previous, notice)}
-          onRetry={notice?.kind === 'unreachable' ? retry : null}
-        />
+        {hint ? (
+          <Hint hint={hint} onHide={closeHint} />
+        ) : (
+          <Side
+            headline={headlineFor(revealed, previous, notice)}
+            onRetry={
+              notice?.kind === 'unreachable'
+                ? retry
+                : notice?.kind === 'hint-failed'
+                  ? () => void openHint()
+                  : null
+            }
+            onHint={canHint ? () => void openHint() : null}
+          />
+        )}
         <section
           className={`game ${notice?.kind === 'unreachable' ? 'faded' : ''}`}
           aria-label="Game"

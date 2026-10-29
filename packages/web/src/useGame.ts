@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { ApiError, createGame, guess } from './api.ts';
+import { ApiError, createGame, guess, hint as fetchHint } from './api.ts';
 import type { Notice } from './headline.ts';
 import { prefersReducedMotion, revealMs } from './motion.ts';
-import type { GameView } from './types.ts';
+import type { GameView, HintResponse } from './types.ts';
 import { pressKey, WORD_LENGTH } from './typing.ts';
 
 const REFUSED = ['not-in-word-list', 'not-five-letters'];
@@ -14,6 +14,8 @@ export function useGame() {
   // The count before the last guess, to tell when a guess ruled nothing out
   const [previous, setPrevious] = useState<number | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
+  // The hint the player asked for; cleared when a new guess makes it stale
+  const [hint, setHint] = useState<HintResponse | null>(null);
   // Counts refusals in a row, so the row wobbles again each time
   const [refused, setRefused] = useState(0);
   // The game as of the last row that finished flipping. The keys and the
@@ -53,6 +55,7 @@ export function useGame() {
       const created = await createGame();
       showGame(created);
       setRevealed(created);
+      setHint(null);
       reached();
       setTyped('');
       setPrevious(null);
@@ -70,6 +73,7 @@ export function useGame() {
       const response = await guess(gameId, word);
       const before = gameRef.current?.remainingWords ?? null;
       showGame(response.game);
+      setHint(null);
       reached();
       setTyped('');
       setRefused(0);
@@ -113,6 +117,17 @@ export function useGame() {
     }
   }
 
+  async function openHint() {
+    const current = gameRef.current;
+    if (!current || busyRef.current) return;
+    try {
+      setHint(await fetchHint(current.id));
+      setNotice((n) => (n?.kind === 'unreachable' ? n : null));
+    } catch {
+      setNotice({ kind: 'hint-failed' });
+    }
+  }
+
   function retry() {
     if (retryRef.current && !busyRef.current) void retryRef.current();
   }
@@ -130,8 +145,11 @@ export function useGame() {
     refused,
     revealed,
     over,
+    hint,
     press,
     retry,
+    openHint,
+    closeHint: () => setHint(null),
     newGame,
   };
 }

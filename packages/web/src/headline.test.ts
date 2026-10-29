@@ -68,6 +68,13 @@ describe('headlineFor', () => {
     );
   });
 
+  it('says when a hint could not be fetched', () => {
+    expect(headlineFor(game(8), 44, { kind: 'hint-failed' })).toEqual({
+      title: "We couldn't get a hint just now.",
+      line: 'Try again in a moment, or keep playing without one.',
+    });
+  });
+
   it('names the guess count and the word on a win', () => {
     const won = game(1, ['CRANE', 'BLAST', 'SHAKE'], 'won', 'SHAKE');
     expect(headlineFor(won, 8, null)?.title).toBe('You got it in 3: SHAKE.');

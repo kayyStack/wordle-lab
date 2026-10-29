@@ -4,7 +4,8 @@ import type { GameView } from './types.ts';
 export type Notice =
   | { kind: 'refused'; word: string }
   | { kind: 'too-short' }
-  | { kind: 'unreachable' };
+  | { kind: 'unreachable' }
+  | { kind: 'hint-failed' };
 
 export interface Headline {
   /** The refused word the title starts with; the page underlines it */
@@ -58,6 +59,12 @@ export function headlineFor(
     };
   }
   if (!game) return null;
+  if (notice?.kind === 'hint-failed') {
+    return {
+      title: "We couldn't get a hint just now.",
+      line: 'Try again in a moment, or keep playing without one.',
+    };
+  }
 
   if (game.status === 'won') {
     return {
