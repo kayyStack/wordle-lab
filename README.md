@@ -63,6 +63,18 @@ Server paths are under `packages/server/src/`, page paths under
 - **The first hint is stored** in `data/first-hint.txt`. Before any guess every
   game has the same words left, so its best guesses never change, and ranking
   only those takes milliseconds instead of about 5 seconds.
+- **Games are kept in a least-recently-used cache** (`lru-cache`), at most
+  1,000 at a time. A game expires after an hour with no guess, hint or
+  lookup; a finished game expires two minutes after it ends, and looking at
+  it doesn't extend that. Past 1,000 games, the game used least recently goes
+  first. If you are playing a game that has expired, the page says "That
+  game has ended."; if you reload and your game has expired, you get a new
+  one.
+- **Simulation results are computed once and served from a file.**
+  `GET /api/simulation` only reads `data/simulation.json`; nothing is played
+  until someone asks for a run. Only one run happens at a time: anyone who
+  asks while it is going gets that same run and its progress, instead of
+  starting another.
 - **The counter is a sentence**, "Only 8 words could still be the secret
   word.", because a bare "8" means nothing to a new player.
 - **The page holds only the game's id.** Coming back from How it works, or
