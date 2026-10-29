@@ -6,10 +6,12 @@ interface SideProps {
   onRetry: (() => void) | null;
   /** Shown while a hint can help */
   onHint: (() => void) | null;
+  /** True while a row is flipping: the button stays in place but waits */
+  hintWaiting: boolean;
 }
 
 /** The left column: one headline and one line under it. */
-export function Side({ headline, onRetry, onHint }: SideProps) {
+export function Side({ headline, onRetry, onHint, hintWaiting }: SideProps) {
   if (!headline) return <section className="side" />;
   const word = headline.refusedWord;
   return (
@@ -34,7 +36,11 @@ export function Side({ headline, onRetry, onHint }: SideProps) {
       ) : (
         onHint && (
           <div>
-            <button className="pill secondary" onClick={onHint}>
+            <button
+              className="pill secondary"
+              disabled={hintWaiting}
+              onClick={onHint}
+            >
               Need a hint?
             </button>
           </div>

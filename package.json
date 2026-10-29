@@ -6,7 +6,9 @@
   "license": "MIT",
   "packageManager": "yarn@1.22.22",
   "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta --kill-others-on-fail \"yarn workspace server start:dev\" \"yarn workspace web dev\"",
     "build": "yarn workspace server build && yarn workspace web build",
+    "start": "concurrently -n api,web -c cyan,magenta --kill-others \"node --env-file-if-exists=packages/server/.env packages/server/dist/main.js\" \"yarn workspace web preview\"",
     "test": "yarn workspace server test && yarn workspace web test",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -15,6 +17,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "concurrently": "^10.0.6",
     "prettier": "~3.8.3"
   }
 }

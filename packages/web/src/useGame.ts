@@ -14,7 +14,8 @@ export function useGame() {
   // The count before the last guess, to tell when a guess ruled nothing out
   const [previous, setPrevious] = useState<number | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
-  // The hint the player asked for; cleared when a new guess makes it stale
+  // The hint the player asked for. A new guess makes it stale, but it stays
+  // open until that guess's row has flipped, so the page changes only once.
   const [hint, setHint] = useState<HintResponse | null>(null);
   // Counts refusals in a row, so the row wobbles again each time
   const [refused, setRefused] = useState(0);
@@ -86,7 +87,6 @@ export function useGame() {
       const response = await guess(gameId, word);
       const before = gameRef.current?.remainingWords ?? null;
       showGame(response.game);
-      setHint(null);
       reached();
       setTyped('');
       setRefused(0);
@@ -96,6 +96,7 @@ export function useGame() {
         if (gameRef.current?.id === gameId) {
           setPrevious(before);
           setRevealed(response.game);
+          setHint(null);
         }
       }, delay);
     } catch (error) {

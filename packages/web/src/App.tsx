@@ -25,12 +25,14 @@ export function App() {
   } = useGame();
   const [flash, setFlash] = useState<{ key: string; id: number } | null>(null);
   const guesses = game?.guesses ?? [];
-  // A hint can help while the game is on and the last row has finished flipping
+  // A hint can help while the game is on. While a row is flipping the button
+  // stays put (so the headline doesn't move) but waits, so the hint can't
+  // show the new count before the tiles do.
   const canHint =
     game?.status === 'playing' &&
-    revealed?.guesses.length === guesses.length &&
     notice?.kind !== 'unreachable' &&
     notice?.kind !== 'ended';
+  const flipping = revealed?.guesses.length !== guesses.length;
 
   function pressAndFlash(key: string) {
     const name = key.length === 1 ? key.toUpperCase() : key;
@@ -77,6 +79,7 @@ export function App() {
                   : null
             }
             onHint={canHint ? () => void openHint() : null}
+            hintWaiting={flipping}
           />
         )}
         <section

@@ -8,7 +8,7 @@ describe('allowedOrigins', () => {
 
   it('reads a comma-separated list', () => {
     expect(
-      allowedOrigins('http://localhost:4173, https://wordle.example'),
-    ).toEqual(['http://localhost:4173', 'https://wordle.example']);
+      allowedOrigins('http://localhost:5173, https://wordle.example'),
+    ).toEqual(['http://localhost:5173', 'https://wordle.example']);
   });
 });

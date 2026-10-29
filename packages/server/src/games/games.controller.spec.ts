@@ -174,13 +174,13 @@ describe('games API', () => {
     const res = await fetch(`${baseUrl}/games`, {
       method: 'OPTIONS',
       headers: {
-        origin: 'http://localhost:4173',
+        origin: 'http://localhost:5173',
         'access-control-request-method': 'POST',
       },
     });
     expect(res.status).toBe(204);
     expect(res.headers.get('access-control-allow-origin')).toBe(
-      'http://localhost:4173',
+      'http://localhost:5173',
     );
   });
 });
