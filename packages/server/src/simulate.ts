@@ -1,7 +1,7 @@
 import { renameSync, writeFileSync } from 'fs';
 import * as path from 'path';
-import { loadWords } from './engine/words';
-import { simulate, summarise } from './solver/simulate';
+import { loadWords } from './core/engine/words';
+import { simulate, summarise } from './core/solver/simulate';
 
 // Plays one game for every possible answer and saves the results to
 // data/simulation.json. With --limit N it plays only the first N answers and

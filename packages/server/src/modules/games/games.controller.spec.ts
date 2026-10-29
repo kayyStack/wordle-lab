@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../app.module';
-import { setUpApp } from '../app.setup';
+import { AppModule } from '../../app.module';
+import { setUpApp } from '../../app.setup';
 import { GamesService } from './games.service';
 
 // Starts the real app on a free port and calls it over HTTP, as the web page will.

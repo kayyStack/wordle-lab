@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import * as path from 'path';
 import { WORD_LENGTH } from './score';
 
-const DATA_DIR = path.join(__dirname, '../../data');
+const DATA_DIR = path.join(__dirname, '../../../data');
 
 export interface WordLists {
   /** Words that can be the secret */

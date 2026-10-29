@@ -36,19 +36,25 @@ changing it.
 
 ```
 packages/server/            NestJS API
-  data/                     word lists
-  src/engine/               scoring, game state, remaining words, word loading
-  src/solver/               entropy ranking and explanations
-  src/games/                HTTP: controller, service, error responses
+  data/                     word lists, first hint, simulation results
+  src/main.ts               starts the server
+  src/app.module.ts         lists the feature modules for the server
+  src/app.setup.ts          server settings shared with the HTTP tests
+  src/simulate.ts           the simulate command
+  src/core/                 pure logic: no Nest, no HTTP
+    engine/                 scoring, game state, remaining words, word loading
+    solver/                 entropy ranking, explanations, playing every game
+  src/modules/              Nest: one folder per feature
+    games/                  the game over HTTP: controller, service, errors
 packages/web/               React + Vite page
 ```
 
 All game logic lives in the server. The page only calls the API and paints
 what comes back; it never works out a tile's colour or which words remain.
 
-Inside the server, `engine/` and `solver/` are plain TypeScript with no Nest,
-Express or HTTP imports, so a script or another server could use them as
-they are. `src/separation.spec.ts` fails the tests if that changes.
+Inside the server, `core/` is plain TypeScript with no Nest, Express or HTTP
+imports, so a script or another server could use it as it is (the simulate
+command does). `src/separation.spec.ts` fails the tests if that changes.
 
 ## Word lists
 

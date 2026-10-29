@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { LRUCache } from 'lru-cache';
-import { Game, GameError, Guess } from '../engine/game';
-import { loadWords } from '../engine/words';
-import { suggest, Suggestion } from '../solver/suggest';
+import { Game, GameError, Guess } from '../../core/engine/game';
+import { loadWords } from '../../core/engine/words';
+import { suggest, Suggestion } from '../../core/solver/suggest';
 import { apiError } from './api-error';
 
 const MAX_GAMES = 1000;

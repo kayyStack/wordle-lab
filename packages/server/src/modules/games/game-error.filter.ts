@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch } from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
-import { GameError, GameErrorCode } from '../engine/game';
+import { GameError, GameErrorCode } from '../../core/engine/game';
 import { apiError } from './api-error';
 
 const STATUS: Record<GameErrorCode, number> = {

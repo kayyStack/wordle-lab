@@ -5,8 +5,8 @@ import * as ts from 'typescript';
 // The game logic has to work without the web layer,
 // and the engine must not depend on the solver, which is built on top of it.
 
-const ENGINE_DIR = path.join(__dirname, 'engine');
-const SOLVER_DIR = path.join(__dirname, 'solver');
+const ENGINE_DIR = path.join(__dirname, 'core/engine');
+const SOLVER_DIR = path.join(__dirname, 'core/solver');
 const WEB_MODULES = [/^@nestjs\//, /^express$/, /^(node:)?https?$/];
 
 interface Import {
@@ -35,9 +35,12 @@ describe('separation of game logic', () => {
   const solver = importsIn(SOLVER_DIR);
 
   it('finds the imports it is checking', () => {
-    expect(engine).toContainEqual({ file: 'engine/game.ts', from: './score' });
+    expect(engine).toContainEqual({
+      file: 'core/engine/game.ts',
+      from: './score',
+    });
     expect(solver).toContainEqual({
-      file: 'solver/suggest.ts',
+      file: 'core/solver/suggest.ts',
       from: '../engine/score',
     });
   });

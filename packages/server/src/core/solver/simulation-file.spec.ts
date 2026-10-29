@@ -8,7 +8,7 @@ import { SimulatedGame, simulate, summarise } from './simulate';
 // if the file no longer matches the solver (for example after a word list or
 // ranking change). To fix it, build and run the script again.
 describe('data/simulation.json', () => {
-  const file = path.join(__dirname, '../../data/simulation.json');
+  const file = path.join(__dirname, '../../../data/simulation.json');
   const saved = JSON.parse(readFileSync(file, 'utf8')) as {
     summary: ReturnType<typeof summarise>;
     games: SimulatedGame[];

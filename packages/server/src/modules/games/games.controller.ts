@@ -7,7 +7,7 @@ import {
   Post,
   UseFilters,
 } from '@nestjs/common';
-import { Game, MAX_GUESSES } from '../engine/game';
+import { Game, MAX_GUESSES } from '../../core/engine/game';
 import { apiError } from './api-error';
 import { GameErrorFilter } from './game-error.filter';
 import { GamesService } from './games.service';
