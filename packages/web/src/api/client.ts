@@ -46,6 +46,10 @@ export function createGame() {
   return request<GameView>('POST', '/games');
 }
 
+export function getGame(gameId: string) {
+  return request<GameView>('GET', `/games/${gameId}`);
+}
+
 export function guess(gameId: string, word: string) {
   return request<GuessResponse>('POST', `/games/${gameId}/guesses`, { word });
 }

@@ -62,6 +62,11 @@ packages/web/               React + Vite page
 All game logic lives in the server. The page only calls the API and paints
 what comes back; it never works out a tile's colour or which words remain.
 
+The page keeps one thing of its own: the id of the tab's game, in
+`sessionStorage`. Coming back from How it works, or reloading, asks the server
+for that game (`GET /api/games/:id`) instead of starting a new one. A new tab,
+or a game the server no longer has, starts fresh.
+
 Inside the server, `core/` is plain TypeScript with no Nest, Express or HTTP
 imports, so a script or another server could use it as it is (the simulate
 command does). `src/separation.spec.ts` fails the tests if that changes.

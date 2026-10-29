@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ApiError,
   createGame,
+  getGame,
   guess,
   hint as fetchHint,
 } from '../api/client.ts';
 import type { Notice } from '../lib/headline.ts';
 import { prefersReducedMotion, revealMs } from '../lib/motion.ts';
 import type { GameView, HintResponse } from '../api/types.ts';
+import { saveGameId, savedGameId } from '../lib/savedGame.ts';
 import { pressKey, WORD_LENGTH } from '../lib/typing.ts';
 
 const REFUSED = ['not-in-word-list', 'not-five-letters'];
@@ -71,6 +73,7 @@ export function useGame() {
     busyRef.current = true;
     try {
       const created = await createGame();
+      saveGameId(created.id);
       showGame(created);
       setRevealed(created);
       endedRef.current = false;
@@ -155,8 +158,28 @@ export function useGame() {
     if (retryRef.current && !busyRef.current) void retryRef.current();
   }
 
+  // Picks up this tab's game if the server still has it, else starts one
+  async function start() {
+    const id = savedGameId();
+    if (!id) return newGame();
+    busyRef.current = true;
+    let gone = false;
+    try {
+      const found = await getGame(id);
+      showGame(found);
+      setRevealed(found);
+      reached();
+    } catch (error) {
+      if (isGone(error)) gone = true;
+      else unreachable(start);
+    } finally {
+      busyRef.current = false;
+    }
+    if (gone) await newGame();
+  }
+
   useEffect(() => {
-    void newGame();
+    void start();
   }, []);
 
   const over = game !== null && game.status !== 'playing';
