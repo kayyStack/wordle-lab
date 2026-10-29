@@ -40,6 +40,38 @@ export interface HintResponse {
   suggestions: Suggestion[];
 }
 
+export interface SimulatedGame {
+  secret: string;
+  guesses: string[];
+}
+
+export interface SimulationResults {
+  ranAt: string;
+  durationMs: number;
+  summary: {
+    games: number;
+    average: number;
+    /** How many games took each number of guesses, e.g. { 3: 1217 } */
+    byGuesses: Record<string, number>;
+    hardest: SimulatedGame;
+  };
+}
+
+export interface SimulationRun {
+  startedAt: string;
+  done: number;
+  total: number;
+}
+
+export interface SimulationStatus {
+  /** null until the first run has been saved */
+  results: SimulationResults | null;
+  /** The run going on now, if any */
+  run: SimulationRun | null;
+  /** Set when the last run failed */
+  failure: { at: string; message: string } | null;
+}
+
 export interface ApiErrorBody {
   statusCode: number;
   code: string;

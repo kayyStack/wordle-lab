@@ -189,6 +189,15 @@ going joins it. `GET /api/simulation` shows its progress, then the new
 results. This works in both `yarn dev` and `yarn start`, since both compile
 the command to `dist/simulate.js`.
 
+On the page, this is the "How good are the hints?" section at the end of How
+it works (`/help.html#hints-tested`), reached from the hint panel. Its "Play
+them all again" button starts a run.
+
+Every run, from the command or the page, rewrites
+`packages/server/data/simulation.json`. The games come out the same, so only
+the date and the time taken change, but the file then shows as modified in
+`git status`. `git checkout packages/server/data/simulation.json` puts it back.
+
 The last full run won all 2,315 games, averaging 3.46 guesses:
 
 | Guesses | 2   | 3     | 4   | 5   | 6   |

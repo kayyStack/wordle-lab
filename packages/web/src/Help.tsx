@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
+import { HintsTested } from './HintsTested.tsx';
 import type { TileColour } from './types.ts';
 
 // Every example follows one game whose secret word is SHAKE. Patterns are
@@ -82,6 +83,14 @@ function Section({
 }
 
 export function Help() {
+  // The browser looks for the #section in the address before this page is
+  // drawn, so links like "What's entropy?" would open at the top
+  useEffect(() => {
+    const target =
+      location.hash && document.getElementById(location.hash.slice(1));
+    if (target) target.scrollIntoView();
+  }, []);
+
   return (
     <div className="help">
       <header className="top">
@@ -383,6 +392,8 @@ export function Help() {
             </div>
           }
         />
+
+        <HintsTested />
 
         <p className="help-back">
           <a className="pill primary" href="/">

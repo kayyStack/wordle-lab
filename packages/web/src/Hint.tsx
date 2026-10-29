@@ -68,10 +68,13 @@ export function Hint({ hint, onHide }: HintProps) {
         </div>
       )}
 
-      <div className="hide-pill">
-        <button className="pill secondary" onClick={onHide}>
+      <div className="hint-end">
+        <button className="pill secondary hide-pill" onClick={onHide}>
           Hide hint
         </button>
+        <a className="link" href="/help.html#hints-tested">
+          How good are the hints?
+        </a>
       </div>
     </section>
   );

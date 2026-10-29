@@ -3,6 +3,8 @@ import type {
   GameView,
   GuessResponse,
   HintResponse,
+  SimulationRun,
+  SimulationStatus,
 } from './types.ts';
 
 const BASE_URL =
@@ -50,4 +52,13 @@ export function guess(gameId: string, word: string) {
 
 export function hint(gameId: string) {
   return request<HintResponse>('GET', `/games/${gameId}/hint`);
+}
+
+export function simulationStatus() {
+  return request<SimulationStatus>('GET', '/simulation');
+}
+
+/** Starts a run, or joins the one already going */
+export function startSimulation() {
+  return request<SimulationRun>('POST', '/simulation/runs');
 }

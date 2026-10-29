@@ -216,6 +216,13 @@ body {
   text-align: right;
 }
 
+.hint-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
 .bar {
   height: 8px;
   border-radius: 999px;
