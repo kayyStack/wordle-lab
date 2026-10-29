@@ -116,28 +116,51 @@ export function Help() {
           <div className="help-copy">
             <h1 className="display">How Wordle Lab works</h1>
             <p>
-              It's Wordle, with a helper that can suggest a smart next guess and
-              show you why it's smart.
-            </p>
-            <p>
-              To show how it all works, this page follows{' '}
-              <strong>one game</strong> from start to finish. In that game, the
-              secret word is <W>SHAKE</W>. The player can't see it. They only
-              see the colours their guesses get back.
-            </p>
-          </div>
-          <div className="help-visual">
-            <Row word="SHAKE" />
-            <p className="caption">
-              The secret word in our game. The player never sees this.
+              It's Wordle, with a helper that can suggest your next guess and
+              show you why it's a good one.
             </p>
           </div>
         </section>
 
         <Section
+          title="How to play"
+          copy={
+            <>
+              <p>
+                There's a secret five-letter word. You have{' '}
+                <strong>six guesses</strong> to find it.
+              </p>
+              <p>
+                Type any real five-letter word and press Enter. Each letter then
+                changes colour to tell you how close you are. Use what the
+                colours tell you to make your next guess better.
+              </p>
+              <p>
+                Stuck? <strong>Need a hint?</strong> suggests a guess.
+              </p>
+            </>
+          }
+          visual={
+            <>
+              <div className="help-board" aria-label="An empty board">
+                {Array.from({ length: 6 }, (_, i) => (
+                  <Row word="     " key={i} />
+                ))}
+              </div>
+              <p className="caption">Six guesses, five letters each.</p>
+            </>
+          }
+        />
+
+        <Section
           title="What the colours mean"
           copy={
             <>
+              <p>
+                To show what the colours tell you, the rest of this page follows{' '}
+                <strong>one game</strong>. Its secret word is <W>SHAKE</W>; the
+                player can't see it.
+              </p>
               <p>
                 After each guess, every letter changes colour to tell you
                 something about the secret word.
@@ -151,6 +174,10 @@ export function Help() {
           }
           visual={
             <>
+              <Row word="SHAKE" />
+              <p className="caption">
+                The secret word in our game. The player never sees this.
+              </p>
               <p className="label">The player's first two guesses</p>
               <Row word="CRANE" pattern="..G.G" />
               <Row word="BLAST" pattern="..GY." />

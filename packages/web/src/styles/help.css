@@ -87,6 +87,13 @@
   gap: 6px;
 }
 
+/* Rows of a board sit as close as their tiles */
+.help-board {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .help .tile {
   border-radius: 12px;
   font-size: 24px;
