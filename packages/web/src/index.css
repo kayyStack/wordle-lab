@@ -73,6 +73,24 @@ body {
   cursor: default;
 }
 
+/* A light hover, only where there is a mouse so a tap doesn't leave it on.
+   Colour only, no movement. The outlined pill darkens: lightening it would
+   drop its white text below 4.5:1. */
+@media (hover: hover) {
+  .pill.primary:not(:disabled):hover,
+  .key:not(:disabled):hover {
+    filter: brightness(1.08);
+  }
+
+  .pill.secondary:not(:disabled):hover {
+    background: rgba(31, 43, 58, 0.15);
+  }
+
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
 .pill:focus-visible {
   outline: 3px solid var(--text);
   outline-offset: 2px;
