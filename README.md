@@ -31,12 +31,12 @@ To change the ports, copy the `.env.example` files in `packages/server` and
 `packages/web` to `.env`. The page's API address is read at build time, so
 rebuild after changing it.
 
-## The brief, and where it is
+## What was built, and where it is
 
 Server paths are under `packages/server/src/`, page paths under
 `packages/web/src/`.
 
-| The brief asks for                       | Where it is                                       |
+| The exercise asks for                    | Where it is                                       |
 | ---------------------------------------- | ------------------------------------------------- |
 | Score a guess                            | `core/engine/score.ts`                            |
 | Game state, win or lose, allowed words   | `core/engine/game.ts`                             |
