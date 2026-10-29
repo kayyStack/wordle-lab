@@ -6,9 +6,14 @@ that entropy, and says in plain words how many words it will rule out. All
 game logic runs on a NestJS server; the React page only displays what the
 server sends back.
 
-## Run it
+## How To Run
 
-You need Node 26 and Yarn 1. Install once:
+You need:
+
+- **Node 22, 24 or 26** (22.12 or later; developed on 26)
+- **Yarn 1.22**: `npm install -g yarn`
+
+Install once:
 
 ```
 yarn install --frozen-lockfile
@@ -16,8 +21,8 @@ yarn install --frozen-lockfile
 
 Then either:
 
-- **Play the built app:** `yarn build`, then `yarn start`.
-- **Work on the code, with live reload:** `yarn dev`.
+- **Play the built app:** run `yarn build`, then `yarn start`.
+- **Work on the code, with live reload:** run `yarn dev`.
 
 Both open the game at http://localhost:5173, with the API on port 3000, so run
 one at a time. `yarn test` runs every test.
