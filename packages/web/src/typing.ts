@@ -13,7 +13,9 @@ export function nextTyped(current: string, key: string): string {
   return current;
 }
 
-export type KeyResult = { typed: string } | { submit: string };
+export type KeyResult =
+  | { typed: string; tooShort?: boolean }
+  | { submit: string };
 
 /** What a key press does: change the typed letters, or send them as a guess. */
 export function pressKey(
@@ -23,7 +25,9 @@ export function pressKey(
 ): KeyResult {
   if (locked) return { typed };
   if (key === 'Enter') {
-    return typed.length === WORD_LENGTH ? { submit: typed } : { typed };
+    return typed.length === WORD_LENGTH
+      ? { submit: typed }
+      : { typed, tooShort: true };
   }
   return { typed: nextTyped(typed, key) };
 }

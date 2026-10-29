@@ -7,7 +7,10 @@ describe('pressKey', () => {
   });
 
   it('does not send fewer than five letters', () => {
-    expect(pressKey('CRAN', 'Enter', false)).toEqual({ typed: 'CRAN' });
+    expect(pressKey('CRAN', 'Enter', false)).toEqual({
+      typed: 'CRAN',
+      tooShort: true,
+    });
   });
 
   it('types letters', () => {

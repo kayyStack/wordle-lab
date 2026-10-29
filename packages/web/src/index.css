@@ -248,3 +248,88 @@ body {
     font-size: 14px;
   }
 }
+
+/* Motion: Pop, Flip down, Wobble and Light up */
+.tile.typed {
+  animation: pop 0.2s ease-out;
+}
+
+.board-row.reveal .tile {
+  animation: flip 0.5s ease-in-out backwards;
+  animation-delay: calc(var(--i) * var(--stagger));
+}
+
+/* The winning row wobbles once the last tile has landed (1.5s) */
+.board-row.reveal.win .tile {
+  animation:
+    flip 0.5s ease-in-out backwards,
+    wobble 0.55s ease-in-out;
+  animation-delay:
+    calc(var(--i) * var(--stagger)), calc(1.5s + var(--i) * 60ms);
+}
+
+.board-row.shake .tile {
+  animation: wobble 0.55s ease-in-out;
+  animation-delay: calc(var(--i) * 60ms);
+}
+
+.key.lit {
+  animation: light-up 0.25s ease-out;
+}
+
+@keyframes pop {
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+/* Until it turns edge-on, the tile keeps its typed look; then it shows its colour */
+@keyframes flip {
+  0% {
+    transform: rotateX(0);
+    background: transparent;
+    border-color: var(--text);
+    color: var(--text);
+  }
+  49.9% {
+    background: transparent;
+    border-color: var(--text);
+    color: var(--text);
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0);
+  }
+}
+
+@keyframes wobble {
+  25% {
+    transform: rotate(-9deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+  75% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes light-up {
+  from {
+    background: #6a86a6;
+  }
+}
+
+/* Reduce motion: nothing moves; a pressed key still lights up, without the fade */
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .board-row .tile {
+    animation: none !important;
+  }
+
+  .key.lit {
+    animation-timing-function: step-end;
+  }
+}
