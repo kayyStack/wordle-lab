@@ -42,7 +42,12 @@ export function Hint({ hint, onHide }: HintProps) {
         <div className="bar">
           <span style={{ width: width(best.entropy) }} />
         </div>
-        <p className="meter-note">How much this guess narrows things down.</p>
+        <p className="meter-note">
+          How much this guess narrows things down.{' '}
+          <a className="link" href="/help.html#entropy">
+            What's entropy?
+          </a>
+        </p>
       </div>
 
       {others.length > 0 && (

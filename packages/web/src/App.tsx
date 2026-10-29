@@ -53,9 +53,14 @@ export function App() {
     <div className="page">
       <header className="top">
         <span className="display brand">Wordle Lab</span>
-        <button className="pill primary" onClick={() => void newGame()}>
-          New game
-        </button>
+        <nav className="top-actions">
+          <a className="link" href="/help.html">
+            How it works
+          </a>
+          <button className="pill primary" onClick={() => void newGame()}>
+            New game
+          </button>
+        </nav>
       </header>
       <main className="split">
         {hint ? (

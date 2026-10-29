@@ -40,6 +40,12 @@ body {
   justify-content: space-between;
 }
 
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
 .pill {
   height: 46px;
   padding: 0 24px;
@@ -358,6 +364,14 @@ body {
 
   .brand {
     font-size: 22px;
+  }
+
+  .top-actions {
+    gap: 14px;
+  }
+
+  .top-actions .link {
+    font-size: 14px;
   }
 
   .pill {

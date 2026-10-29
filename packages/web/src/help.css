@@ -1,0 +1,214 @@
+/* The help page: one open field, copy on the left and its picture on the right */
+.help {
+  --tile: 48px;
+}
+
+.help a.pill {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.help-wrap {
+  max-width: 1168px;
+  margin: 0 auto;
+  padding: 0 56px 120px;
+  box-sizing: border-box;
+}
+
+.help-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px 72px;
+  padding-top: 88px;
+}
+
+.help-intro {
+  padding-top: 40px;
+  align-items: center;
+}
+
+.help-copy {
+  flex: 0 1 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.help-intro .help-copy {
+  flex-basis: 600px;
+}
+
+.help-copy h1 {
+  margin: 0;
+  font-size: 72px;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+
+.help-copy h2 {
+  margin: 0;
+  font-size: 44px;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.help-copy p {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--soft);
+}
+
+.help-intro .help-copy p {
+  font-size: 22px;
+}
+
+.help-copy strong {
+  color: var(--text);
+}
+
+.help-visual {
+  flex: 0 1 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.help-intro .help-visual {
+  flex-basis: 360px;
+}
+
+.help-row {
+  display: flex;
+  gap: 6px;
+}
+
+.help .tile {
+  border-radius: 12px;
+  font-size: 24px;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 18px;
+}
+
+.label {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.caption {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--soft);
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px;
+}
+
+.steps div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.big {
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.result {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+}
+
+.mini {
+  display: flex;
+  gap: 3px;
+  margin-right: 8px;
+}
+
+.mini span {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.mini .green {
+  background: var(--green);
+}
+
+.mini .yellow {
+  background: var(--mustard);
+}
+
+.mini .gray {
+  background: var(--ink);
+}
+
+.help-back {
+  padding-top: 88px;
+}
+
+/* Phone: one column, smaller type */
+@media (max-width: 600px) {
+  .help {
+    --tile: 40px;
+  }
+
+  .help-wrap {
+    padding: 0 16px 64px;
+  }
+
+  .help-section {
+    padding-top: 56px;
+    gap: 24px;
+  }
+
+  .help-copy h1 {
+    font-size: 40px;
+  }
+
+  .help-copy h2 {
+    font-size: 30px;
+  }
+
+  .help-copy p,
+  .help-intro .help-copy p {
+    font-size: 17px;
+  }
+
+  .help .tile {
+    border-radius: 10px;
+    font-size: 20px;
+  }
+
+  .steps {
+    flex-wrap: nowrap;
+    gap: 18px;
+  }
+
+  .steps .caption {
+    font-size: 14px;
+  }
+
+  .big {
+    font-size: 36px;
+  }
+}
