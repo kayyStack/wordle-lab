@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { ApiError, createGame, guess, hint as fetchHint } from './api.ts';
-import type { Notice } from './headline.ts';
-import { prefersReducedMotion, revealMs } from './motion.ts';
-import type { GameView, HintResponse } from './types.ts';
-import { pressKey, WORD_LENGTH } from './typing.ts';
+import {
+  ApiError,
+  createGame,
+  guess,
+  hint as fetchHint,
+} from '../api/client.ts';
+import type { Notice } from '../lib/headline.ts';
+import { prefersReducedMotion, revealMs } from '../lib/motion.ts';
+import type { GameView, HintResponse } from '../api/types.ts';
+import { pressKey, WORD_LENGTH } from '../lib/typing.ts';
 
 const REFUSED = ['not-in-word-list', 'not-five-letters'];
 

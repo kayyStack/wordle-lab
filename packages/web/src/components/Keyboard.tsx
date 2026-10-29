@@ -1,4 +1,4 @@
-import type { TileColour } from './types.ts';
+import type { TileColour } from '../api/types.ts';
 
 const ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
 

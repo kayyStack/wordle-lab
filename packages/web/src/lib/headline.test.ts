@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { headlineFor } from './headline.ts';
-import type { GameView, Guess } from './types.ts';
+import type { GameView, Guess } from '../api/types.ts';
 
 const gray: Guess['colours'] = ['gray', 'gray', 'gray', 'gray', 'gray'];
 

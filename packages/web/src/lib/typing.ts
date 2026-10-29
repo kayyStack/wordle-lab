@@ -1,4 +1,4 @@
-import type { Guess, TileColour } from './types.ts';
+import type { Guess, TileColour } from '../api/types.ts';
 
 export const WORD_LENGTH = 5;
 

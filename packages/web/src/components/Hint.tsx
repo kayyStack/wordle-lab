@@ -1,5 +1,5 @@
-import { formatBits, hintReason, maxBits } from './hintText.ts';
-import type { HintResponse } from './types.ts';
+import { formatBits, hintReason, maxBits } from '../lib/hintText.ts';
+import type { HintResponse } from '../api/types.ts';
 
 interface HintProps {
   hint: HintResponse;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { formatBits, hintReason, maxBits } from './hintText.ts';
-import type { Suggestion } from './types.ts';
+import type { Suggestion } from '../api/types.ts';
 
 function suggestion(worstCase: number, couldBeAnswer: boolean): Suggestion {
   return {

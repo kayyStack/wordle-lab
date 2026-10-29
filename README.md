@@ -48,6 +48,15 @@ packages/server/            NestJS API
     games/                  the game over HTTP: controller, service, errors
     simulation/             Rerun over HTTP: starts the simulate command
 packages/web/               React + Vite page
+  index.html, help.html     the two pages: the game and How it works
+  src/pages/                each page's entry point and top component
+  src/components/           Board, Keyboard, the headline, the hint panel,
+                            the simulation section
+  src/hooks/                useGame: the game's state and its API calls
+  src/lib/                  plain logic with tests: typing, headline and
+                            hint wording, motion timing
+  src/api/                  the API client and the response types
+  src/styles/               shared styles and the How it works styles
 ```
 
 All game logic lives in the server. The page only calls the API and paints

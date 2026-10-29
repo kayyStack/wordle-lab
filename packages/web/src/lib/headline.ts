@@ -1,4 +1,4 @@
-import type { GameView } from './types.ts';
+import type { GameView } from '../api/types.ts';
 
 /** Something the page must tell the player before going back to the count. */
 export type Notice =

@@ -1,4 +1,4 @@
-import type { Headline } from './headline.ts';
+import type { Headline } from '../lib/headline.ts';
 
 interface SideProps {
   headline: Headline | null;

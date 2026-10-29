@@ -1,4 +1,4 @@
-import type { Suggestion } from './types.ts';
+import type { Suggestion } from '../api/types.ts';
 
 /** The most entropy any guess can have with this many words left: log2 of the count. */
 export function maxBits(remainingWords: number): number {

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
-import { HintsTested } from './HintsTested.tsx';
-import type { TileColour } from './types.ts';
+import { HintsTested } from '../../components/HintsTested.tsx';
+import type { TileColour } from '../../api/types.ts';
 
 // Every example follows one game whose secret word is SHAKE. Patterns are
 // real engine output: G green, Y yellow, . dark.

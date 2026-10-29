@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Board } from './Board.tsx';
-import { headlineFor } from './headline.ts';
-import { Hint } from './Hint.tsx';
-import { Keyboard } from './Keyboard.tsx';
-import { Side } from './Side.tsx';
-import { keyColours } from './typing.ts';
-import { useGame } from './useGame.ts';
+import { Board } from '../../components/Board.tsx';
+import { headlineFor } from '../../lib/headline.ts';
+import { Hint } from '../../components/Hint.tsx';
+import { Keyboard } from '../../components/Keyboard.tsx';
+import { Side } from '../../components/Side.tsx';
+import { keyColours } from '../../lib/typing.ts';
+import { useGame } from '../../hooks/useGame.ts';
 
 export function App() {
   const {

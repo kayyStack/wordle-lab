@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
-import { STAGGER_MS } from './motion.ts';
-import type { Guess } from './types.ts';
-import { WORD_LENGTH } from './typing.ts';
+import { STAGGER_MS } from '../lib/motion.ts';
+import type { Guess } from '../api/types.ts';
+import { WORD_LENGTH } from '../lib/typing.ts';
 
 const COLOUR_NAMES = {
   green: 'right spot',

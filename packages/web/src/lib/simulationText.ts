@@ -1,4 +1,4 @@
-import type { SimulationResults } from './types.ts';
+import type { SimulationResults } from '../api/types.ts';
 
 const MAX_GUESSES = 6;
 

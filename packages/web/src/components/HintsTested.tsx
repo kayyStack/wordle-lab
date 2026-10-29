@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { simulationStatus, startSimulation } from './api.ts';
-import { lastRunText, resultText, seconds } from './simulationText.ts';
-import type { SimulationResults, SimulationStatus } from './types.ts';
+import { simulationStatus, startSimulation } from '../api/client.ts';
+import { lastRunText, resultText, seconds } from '../lib/simulationText.ts';
+import type { SimulationResults, SimulationStatus } from '../api/types.ts';
 
 // How often to ask for progress while a run is going
 const POLL_MS = 1000;
