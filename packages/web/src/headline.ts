@@ -5,7 +5,8 @@ export type Notice =
   | { kind: 'refused'; word: string }
   | { kind: 'too-short' }
   | { kind: 'unreachable' }
-  | { kind: 'hint-failed' };
+  | { kind: 'hint-failed' }
+  | { kind: 'ended' };
 
 export interface Headline {
   /** The refused word the title starts with; the page underlines it */
@@ -56,6 +57,12 @@ export function headlineFor(
     return {
       title: "We can't reach the game right now.",
       line: 'Try again in a moment.',
+    };
+  }
+  if (notice?.kind === 'ended') {
+    return {
+      title: 'That game has ended.',
+      line: 'Press New game to start another.',
     };
   }
   if (!game) return null;

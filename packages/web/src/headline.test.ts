@@ -75,6 +75,13 @@ describe('headlineFor', () => {
     });
   });
 
+  it('says when the server no longer has the game', () => {
+    expect(headlineFor(game(8), 44, { kind: 'ended' })).toEqual({
+      title: 'That game has ended.',
+      line: 'Press New game to start another.',
+    });
+  });
+
   it('names the guess count and the word on a win', () => {
     const won = game(1, ['CRANE', 'BLAST', 'SHAKE'], 'won', 'SHAKE');
     expect(headlineFor(won, 8, null)?.title).toBe('You got it in 3: SHAKE.');

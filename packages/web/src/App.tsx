@@ -29,7 +29,8 @@ export function App() {
   const canHint =
     game?.status === 'playing' &&
     revealed?.guesses.length === guesses.length &&
-    notice?.kind !== 'unreachable';
+    notice?.kind !== 'unreachable' &&
+    notice?.kind !== 'ended';
 
   function pressAndFlash(key: string) {
     const name = key.length === 1 ? key.toUpperCase() : key;
@@ -79,7 +80,7 @@ export function App() {
           />
         )}
         <section
-          className={`game ${notice?.kind === 'unreachable' ? 'faded' : ''}`}
+          className={`game ${notice?.kind === 'unreachable' || notice?.kind === 'ended' ? 'faded' : ''}`}
           aria-label="Game"
         >
           <Board

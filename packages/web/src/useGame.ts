@@ -28,6 +28,8 @@ export function useGame() {
   const gameRef = useRef<GameView | null>(null);
   // Set while the server can't be reached: what "Try again" repeats
   const retryRef = useRef<(() => Promise<void>) | null>(null);
+  // Set once the server no longer has this game (it expired or restarted)
+  const endedRef = useRef(false);
 
   function setTyped(value: string) {
     typedRef.current = value;
@@ -44,6 +46,16 @@ export function useGame() {
     setNotice({ kind: 'unreachable' });
   }
 
+  function ended() {
+    endedRef.current = true;
+    retryRef.current = null;
+    setHint(null);
+    setNotice({ kind: 'ended' });
+  }
+
+  const isGone = (error: unknown) =>
+    error instanceof ApiError && error.code === 'game-not-found';
+
   function reached() {
     retryRef.current = null;
     setNotice(null);
@@ -55,6 +67,7 @@ export function useGame() {
       const created = await createGame();
       showGame(created);
       setRevealed(created);
+      endedRef.current = false;
       setHint(null);
       reached();
       setTyped('');
@@ -89,6 +102,8 @@ export function useGame() {
       if (error instanceof ApiError && REFUSED.includes(error.code)) {
         setNotice({ kind: 'refused', word });
         setRefused((n) => n + 1);
+      } else if (isGone(error)) {
+        ended();
       } else {
         unreachable(() => submit(gameId, word));
       }
@@ -102,6 +117,7 @@ export function useGame() {
     const locked =
       busyRef.current ||
       retryRef.current !== null ||
+      endedRef.current ||
       current === null ||
       current.status !== 'playing';
     const result = pressKey(typedRef.current, key, locked);
@@ -123,8 +139,9 @@ export function useGame() {
     try {
       setHint(await fetchHint(current.id));
       setNotice((n) => (n?.kind === 'unreachable' ? n : null));
-    } catch {
-      setNotice({ kind: 'hint-failed' });
+    } catch (error) {
+      if (isGone(error)) ended();
+      else setNotice({ kind: 'hint-failed' });
     }
   }
 
