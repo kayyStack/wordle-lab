@@ -1,89 +1,81 @@
 # Wordle Lab
 
-Play Wordle in the browser and ask for a hint: the solver suggests the next
-guess that tells you the most about the secret word, shows its entropy, and
-explains why.
+Wordle in the browser, with a helper that suggests your next guess. It picks
+the guess whose colours you can least predict (the highest entropy), shows
+that entropy, and says in plain words how many words it will rule out. All
+game logic runs on a NestJS server; the React page only displays what the
+server sends back.
 
 ## Run it
 
-Developed and tested on Node 26 with Yarn 1.
+You need Node 26 and Yarn 1. Install once:
 
 ```
 yarn install --frozen-lockfile
-yarn build
-yarn start
 ```
 
-Then open http://localhost:5173. `yarn start` runs the API on port 3000 and
-serves the built page on port 5173; Ctrl+C stops both.
+Then either:
 
-| Command      | What it does                                                                    |
-| ------------ | ------------------------------------------------------------------------------- |
-| `yarn dev`   | API and page with live reload, same ports                                       |
-| `yarn build` | Builds the server to `packages/server/dist` and the page to `packages/web/dist` |
-| `yarn start` | Runs what `yarn build` made                                                     |
-| `yarn test`  | Server tests (Jest), then web tests (Vitest)                                    |
+- **Play the built app:** `yarn build`, then `yarn start`.
+- **Work on the code, with live reload:** `yarn dev`.
 
-`yarn dev` and `yarn start` use the same ports, so run one at a time.
+Both open the game at http://localhost:5173, with the API on port 3000, so run
+one at a time. `yarn test` runs every test.
 
-Settings are optional; the defaults match the ports above. Copy
-`packages/server/.env.example` to `packages/server/.env` to change `PORT` or
-`CORS_ORIGINS`. The page calls the API at `VITE_API_BASE_URL`
-(`packages/web/.env.example`), which is read at build time, so rebuild after
-changing it.
+To change the ports, copy the `.env.example` files in `packages/server` and
+`packages/web` to `.env`. The page's API address is read at build time, so
+rebuild after changing it.
 
-## How it is put together
+## The brief, and where it is
 
-```
-packages/server/            NestJS API
-  data/                     word lists, first hint, simulation results
-  src/main.ts               starts the server
-  src/app.module.ts         lists the feature modules for the server
-  src/app.setup.ts          server settings shared with the HTTP tests
-  src/simulate.ts           the simulate command
-  src/core/                 pure logic: no Nest, no HTTP
-    engine/                 scoring, game state, remaining words, word loading
-    solver/                 entropy ranking, explanations, playing every game
-  src/modules/              Nest: one folder per feature
-    games/                  the game over HTTP: controller, service, errors
-    simulation/             Rerun over HTTP: starts the simulate command
-packages/web/               React + Vite page
-  index.html, help.html     the two pages: the game and How it works
-  src/pages/                each page's entry point and top component
-  src/components/           Board, Keyboard, the headline, the hint panel,
-                            the simulation section
-  src/hooks/                useGame: the game's state and its API calls
-  src/lib/                  plain logic with tests: typing, headline and
-                            hint wording, motion timing
-  src/api/                  the API client and the response types
-  src/styles/               shared styles and the How it works styles
-```
+Server paths are under `packages/server/src/`, page paths under
+`packages/web/src/`.
 
-All game logic lives in the server. The page only calls the API and paints
-what comes back; it never works out a tile's colour or which words remain.
+| The brief asks for                       | Where it is                                       |
+| ---------------------------------------- | ------------------------------------------------- |
+| Score a guess                            | `core/engine/score.ts`                            |
+| Game state, win or lose, allowed words   | `core/engine/game.ts`                             |
+| Load the word list from a file           | `core/engine/words.ts`, reading `data/`           |
+| Which words are still possible           | `core/engine/remaining.ts`                        |
+| Rank guesses by entropy, top with scores | `core/solver/suggest.ts`                          |
+| Start a game, guess, hint, clear errors  | `modules/games/` ([API](#api))                    |
+| Board, keyboard, coloured tiles          | `components/Board.tsx`, `components/Keyboard.tsx` |
+| Hint panel                               | `components/Hint.tsx`                             |
+| "Words remaining" counter                | `components/Side.tsx`                             |
+| Errors without breaking the page         | `hooks/useGame.ts`                                |
+| Simulate (optional)                      | [Simulation](#simulation)                         |
 
-The page keeps one thing of its own: the id of the tab's game, in
-`sessionStorage`. Coming back from How it works, or reloading, asks the server
-for that game (`GET /api/games/:id`) instead of starting a new one. A new tab,
-or a game the server no longer has, starts fresh.
+**Choices worth knowing**
 
-Inside the server, `core/` is plain TypeScript with no Nest, Express or HTTP
-imports, so a script or another server could use it as it is (the simulate
-command does). `src/separation.spec.ts` fails the tests if that changes.
+- **Every guess is scored in two passes.** First, each letter is compared with
+  the secret word's letter in the same spot: matches turn green, and the
+  secret's other letters are counted. Then each remaining letter of the guess
+  turns yellow only if one of those counted letters is still unused, and uses
+  it up. That is why a letter you type twice only lights up as many times as
+  the secret word has it.
+- **The solver tries all 12,972 words you may type**, not only the 2,315 that
+  can be the secret: a word that can't win often splits the rest better.
+- **The first hint is stored** in `data/first-hint.txt`. Before any guess every
+  game has the same words left, so its best guesses never change, and ranking
+  only those takes milliseconds instead of about 5 seconds.
+- **The counter is a sentence**, "Only 8 words could still be the secret
+  word.", because a bare "8" means nothing to a new player.
+- **The page holds only the game's id.** Coming back from How it works, or
+  reloading, fetches the game again (`GET /api/games/:id`), so the two pages
+  are plain HTML pages joined by links, with no router.
+- **`core/` never imports Nest**, so the simulate command uses the solver
+  directly; `separation.spec.ts` fails if that changes.
+- **Word lists:** the original Wordle lists, not the New York Times' later
+  edits:
+  [answers](https://gist.github.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b)
+  (2,315) and
+  [other allowed guesses](https://gist.github.com/cfreshman/cdcdf777450c5b5301e439061d29694c)
+  (10,657).
 
-## Word lists
+**Caveats**
 
-The original Wordle lists, from cfreshman's gists, not the New York Times'
-later edits:
-
-- `data/answers.txt`: 2,315 words the secret word is picked from
-  ([wordle-answers-alphabetical.txt](https://gist.github.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b))
-- `data/extra-guesses.txt`: 10,657 more words a player may type but that are
-  never the secret word
-  ([wordle-allowed-guesses.txt](https://gist.github.com/cfreshman/cdcdf777450c5b5301e439061d29694c))
-
-A player may type any of the 12,972 words in both files. The loader rejects a
-file with a word that isn't five letters or a word listed twice.
+- **Looking two guesses ahead.** The solver only picks the best single next guess; looking further finds a better opener, increases complexity and is deliberately left out of scope (SLANE, as reported
+  in [1] under [The solver](#the-solver)).
 
 ## API
 
@@ -98,8 +90,6 @@ All routes are under `/api`.
 | `GET /simulation`                                  | The last simulation's totals, date and time taken, and the run going on or the last failure |
 | `POST /simulation/runs`                            | Starts the simulate command, or joins the run already going (202)                           |
 
-The secret word is only included once the game is won or lost.
-
 Errors have the body `{ statusCode, code, message }`:
 
 | Status | Code                    | When                                        |
@@ -111,45 +101,33 @@ Errors have the body `{ statusCode, code, message }`:
 | 409    | `game-over`             | A guess or hint after the game has ended    |
 | 500    | `simulation-unreadable` | The saved simulation file is not valid JSON |
 
-Games are kept in memory: removed after an hour without a guess or hint, two
-minutes after they end, or when more than 1,000 exist (least recently used
-first).
-
 ## The solver
 
-**Remaining words.** A word is still possible if, had it been the secret, every
-guess so far would have shown exactly the colours it did. The game starts with
-all 2,315 answers and narrows the list after each guess.
-
-**Entropy.** For each of the 12,972 allowed guesses, the solver scores it
-against every remaining word and groups those words by the colour pattern they
-would produce. If a group holds `n` of the `N` remaining words, `p = n / N`, and
+**Entropy.** For each allowed guess, the solver scores it against every word
+that could still be the secret and groups those words by the colours they
+would show. If a group holds `n` of the `N` remaining words, `p = n / N`, and
 the guess's entropy in bits is
 
 ```
 H = −Σ p · log₂ p
 ```
 
-Higher entropy means the colours are harder to predict, so on average they
-rule out more words. Each bit roughly halves the words left. The best possible
-value is `log₂ N`, when every remaining word would give a different pattern.
+Higher entropy means the colours are harder to predict, so on average they rule
+out more words; each bit roughly halves them. The most possible is `log₂ N`,
+when every remaining word would show different colours.
 
 **Tie-break.** Guesses are sorted by entropy, highest first, rounded to 9
-decimal places so floating-point noise doesn't split real ties. Equal entropies
-go to a guess that could itself be the secret word, then alphabetical order.
-Entropy stays the ranking; the tie-break only orders exact ties.
+decimal places so floating-point noise doesn't split real ties. Equal
+entropies go to a guess that could itself be the secret word, then to
+alphabetical order. Entropy stays the ranking; the tie-break only orders exact
+ties.
 
 **Explanation.** Each suggestion carries the number of groups, the worst case
-(the largest group, so the most words that could be left), and whether it
-could be the answer. The page turns these into a sentence such as "It can't be
-the secret word, but it will rule out at least 6 of the 8 remaining possible
-secret words."
-
-**First hint.** Before any guess every game has the same remaining words, so
-the first hint is always the same. Its five words are stored in
-`data/first-hint.txt`, and only those are ranked for a game with no guesses,
-which takes milliseconds instead of about 5 seconds. `first-hint.spec.ts` runs
-the full search and fails if the file is out of date.
+(the largest group: the most words that could be left) and whether it could be
+the answer. The page turns these into a sentence such as "It can't be the
+secret word, but it will rule out at least 6 of the 8 remaining possible secret
+words." How it works (`/help.html`) explains the colours, the count and entropy
+to a player through one example game.
 
 **Checked against published figures.** On the same 2,315-word answer list, the
 full search ranks SOARE first at 5.886 bits and ROATE second at 5.883. Grant
@@ -164,60 +142,49 @@ agreeing with these.
 2. Rachel Gardner, "The science behind that viral Wordle video…", Department
    of Computer Science and Technology, University of Cambridge, 21 February 2022. https://www.cst.cam.ac.uk/node/4163231
 
-The page has a "How it works" page (`/help.html`) that explains the colours,
-the count and entropy to a player through one example game.
+## Simulation
+
+The solver plays one game for every possible secret word, always guessing its
+own top suggestion, and counts the guesses each game needed. The last full run
+won all 2,315 games, averaging 3.46 guesses:
+
+| Guesses | 2   | 3     | 4   | 5   | 6   |
+| ------- | --- | ----- | --- | --- | --- |
+| Games   | 44  | 1,217 | 990 | 63  | 1   |
+
+Run it from the terminal after `yarn build`:
+
+```
+node packages/server/dist/simulate.js            # all 2,315 games, about 15 s
+node packages/server/dist/simulate.js --limit 50 # a quick check, not saved
+```
+
+Or on the page: "How good are the hints?" at the end of How it works
+(`/help.html#hints-tested`), reached from the hint panel. Its "Play them all
+again" button runs the same command on the server as a separate process,
+capped at 64 MB of memory, so a run that fails stops only itself. One run at a
+time; pressing again while one is going joins it.
+
+A full run saves `packages/server/data/simulation.json`. The solver has no
+randomness, so the games come out the same every time; only the date and the
+time taken change. That still shows the file as modified in `git status`;
+`git checkout packages/server/data/simulation.json` puts it back.
+`simulation-file.spec.ts` replays every 100th saved game and fails if the file
+no longer matches the solver.
 
 ## Tests
 
 `yarn test` runs both packages.
 
-- Server (Jest): scoring, including repeated letters (`SPEED` against `ABIDE`);
-  word loading and counts; game state and its errors; remaining words always
+- Server (Jest): scoring, including repeated letters (`SPEED` against
+  `ABIDE`); word loading; game state and its errors; remaining words always
   equal a full re-filter; scoring and remaining words against a real New York
   Times game; the solver's ranking, tie-break and explanations on small word
-  lists; the first guesses against published results; the API over real HTTP,
-  including every error and CORS; the separation check; the stored first hint.
-- Web (Vitest): typing and key colours, the headline and messages, hint
-  wording and bit formatting, reduced motion.
-
-## Simulate
-
-The solver plays one game for every possible answer, always guessing its own
-top suggestion, and counts the guesses each game needed:
-
-```
-yarn build
-node packages/server/dist/simulate.js            # all 2,315 games, about 15 s
-node packages/server/dist/simulate.js --limit 50 # a quick check, not saved
-```
-
-A full run saves `packages/server/data/simulation.json`: the date, how long
-it took, the totals, and every game's guesses. The results never vary between
-runs: the solver has no randomness, so they change only when the word lists or
-the solver change. `simulation-file.spec.ts` replays every 100th game and
-fails if the saved file no longer matches.
-
-`POST /api/simulation/runs` runs the same command from the server, as a
-separate process capped at 64 MB of memory, so a run that fails or runs out of
-memory stops only itself. Only one runs at a time; asking again while one is
-going joins it. `GET /api/simulation` shows its progress, then the new
-results. This works in both `yarn dev` and `yarn start`, since both compile
-the command to `dist/simulate.js`.
-
-On the page, this is the "How good are the hints?" section at the end of How
-it works (`/help.html#hints-tested`), reached from the hint panel. Its "Play
-them all again" button starts a run.
-
-Every run, from the command or the page, rewrites
-`packages/server/data/simulation.json`. The games come out the same, so only
-the date and the time taken change, but the file then shows as modified in
-`git status`. `git checkout packages/server/data/simulation.json` puts it back.
-
-The last full run won all 2,315 games, averaging 3.46 guesses:
-
-| Guesses | 2   | 3     | 4   | 5   | 6   |
-| ------- | --- | ----- | --- | --- | --- |
-| Games   | 44  | 1,217 | 990 | 63  | 1   |
+  lists; the first guesses against published results; the simulation and its
+  saved file; the API over real HTTP, including every error and CORS; the
+  separation check.
+- Web (Vitest): typing and key colours, the headline and messages, hint and
+  simulation wording, the saved game id, reduced motion.
 
 ## Use of AI
 
@@ -232,13 +199,12 @@ step in order.
   build and run scripts, and the earlier drafts of the page's wording and the
   "How it works" page.
 - **How it was checked:** I read every diff before it was committed. The key
-  tests check the code against answers that come from outside it, not from
-  the AI:
+  tests check the code against answers that come from outside it:
   - the scorer and the remaining words against a real New York Times Wordle
-    game (`packages/server/src/engine/remaining.spec.ts`);
+    game (`packages/server/src/core/engine/remaining.spec.ts`);
   - the entropy against published first-guess results: SOARE best at 5.89
-    bits, ROATE second (`packages/server/src/solver/first-hint.spec.ts`; see
-    "Checked against published figures" above).
+    bits, ROATE second (`packages/server/src/core/solver/first-hint.spec.ts`;
+    see "Checked against published figures" above).
 
   The page was designed and signed off before any page code was written, then
   the built game was played live and refined.
