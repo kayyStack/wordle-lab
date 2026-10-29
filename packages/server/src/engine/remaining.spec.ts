@@ -18,6 +18,41 @@ describe('matchingWords', () => {
   });
 });
 
+// A game of the New York Times Wordle on 29 October 2026, with the colours NYT
+// showed: G green, Y yellow, . gray
+const NYT_SECRET = 'MOTOR';
+const NYT_ROWS = [
+  ['SOARE', '.G.Y.'],
+  ['CLIMB', '...Y.'],
+  ['GRUNT', '.Y..Y'],
+  ['METRO', 'G.GYY'],
+  ['MOTOR', 'GGGGG'],
+];
+const COLOUR: Record<string, TileColour> = {
+  G: 'green',
+  Y: 'yellow',
+  '.': 'gray',
+};
+
+describe('a real New York Times game', () => {
+  it('gets the same colours from the scorer', () => {
+    for (const [word, pattern] of NYT_ROWS) {
+      expect(score(word, NYT_SECRET)).toEqual(
+        [...pattern].map((p) => COLOUR[p]),
+      );
+    }
+  });
+
+  it('keeps the secret among the remaining words after each guess', () => {
+    let words = possibleAnswers;
+    for (const [word, pattern] of NYT_ROWS) {
+      const colours = [...pattern].map((p) => COLOUR[p]);
+      words = matchingWords(words, { word, colours });
+      expect(words).toContain(NYT_SECRET);
+    }
+  });
+});
+
 describe('Game.remainingWords', () => {
   it('starts as every possible answer', () => {
     const game = new Game('SHAKE', possibleAnswers, allowedGuesses);
