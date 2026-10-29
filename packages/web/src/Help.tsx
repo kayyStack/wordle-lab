@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import { HintsTested } from './HintsTested.tsx';
 import type { TileColour } from './types.ts';
 
@@ -82,17 +82,28 @@ function Section({
   );
 }
 
+const HOLD_MS = 1500;
+
 export function Help() {
-  // The browser looks for the #section in the address before this page is
-  // drawn, so links like "What's entropy?" would open at the top
+  const hash = location.hash.slice(1);
+  // Opened at "How good are the hints?", the page stays hidden (just the
+  // ground colour) until that section has its results, then shows already
+  // scrolled there, so it never flashes the top or a half-filled section.
+  // It shows anyway after HOLD_MS if the server is slow.
+  const [ready, setReady] = useState(hash !== 'hints-tested');
   useEffect(() => {
-    const target =
-      location.hash && document.getElementById(location.hash.slice(1));
-    if (target) target.scrollIntoView();
+    const timer = setTimeout(() => setReady(true), HOLD_MS);
+    return () => clearTimeout(timer);
   }, []);
 
+  // The browser looks for the #section before this page is drawn, so scroll
+  // here instead; a layout effect runs before the browser paints
+  useLayoutEffect(() => {
+    if (ready && hash) document.getElementById(hash)?.scrollIntoView();
+  }, [ready, hash]);
+
   return (
-    <div className="help">
+    <div className="help" style={ready ? undefined : { visibility: 'hidden' }}>
       <header className="top">
         <span className="display brand">Wordle Lab</span>
         <a className="pill primary" href="/">
@@ -393,7 +404,7 @@ export function Help() {
           }
         />
 
-        <HintsTested />
+        <HintsTested onSettled={() => setReady(true)} />
 
         <p className="help-back">
           <a className="pill primary" href="/">

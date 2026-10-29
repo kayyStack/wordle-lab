@@ -11,7 +11,12 @@ const POLL_MS = 1000;
  * word, and a button to play them all again. A run started by anyone shows
  * here as it goes, since everyone asks the same server.
  */
-export function HintsTested() {
+interface HintsTestedProps {
+  /** Called once the first answer (or failure) from the server is in */
+  onSettled?: () => void;
+}
+
+export function HintsTested({ onSettled }: HintsTestedProps) {
   const [status, setStatus] = useState<SimulationStatus | null>(null);
   const [unreachable, setUnreachable] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -23,6 +28,7 @@ export function HintsTested() {
     } catch {
       setUnreachable(true);
     }
+    onSettled?.();
   }
 
   async function start() {
@@ -56,9 +62,12 @@ export function HintsTested() {
       <div className="help-copy">
         <h2 className="display">How good are the hints?</h2>
         <p>
-          To find out, the helper {results ? 'played' : 'can play'} every one of
-          the <strong>2,315 words</strong> the secret word can be, always
-          guessing its own top hint, the same one you would see.
+          To find out,{' '}
+          {results
+            ? 'we ran a simulation: the helper played'
+            : 'we can run a simulation: the helper plays'}{' '}
+          every one of the <strong>2,315 words</strong> the secret word can be,
+          always guessing its own top hint, the same one you would see.
         </p>
         {results && !unreachable && <ResultLine summary={results.summary} />}
 
@@ -76,7 +85,7 @@ export function HintsTested() {
           <div className="run-message" aria-live="polite">
             <strong>
               {running.total > 0
-                ? `Playing game ${running.done.toLocaleString('en-US')} of ${running.total.toLocaleString('en-US')}…`
+                ? `Simulating game ${running.done.toLocaleString('en-US')} of ${running.total.toLocaleString('en-US')}…`
                 : 'Starting…'}
             </strong>
             <div className="bar progress">
