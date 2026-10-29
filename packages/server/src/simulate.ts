@@ -28,7 +28,11 @@ const games = simulate(
   allowedGuesses,
   firstHintWords,
   secrets,
-  (done, total) => process.stdout.write(`\rPlayed ${done} of ${total}`),
+  (done, total) => {
+    // Started by the server's Rerun: report progress to it instead
+    if (process.send) process.send({ done, total });
+    else process.stdout.write(`\rPlayed ${done} of ${total}`);
+  },
 );
 const durationMs = Date.now() - started;
 const summary = summarise(games);

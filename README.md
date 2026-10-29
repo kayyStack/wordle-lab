@@ -46,6 +46,7 @@ packages/server/            NestJS API
     solver/                 entropy ranking, explanations, playing every game
   src/modules/              Nest: one folder per feature
     games/                  the game over HTTP: controller, service, errors
+    simulation/             Rerun over HTTP: starts the simulate command
 packages/web/               React + Vite page
 ```
 
@@ -74,23 +75,26 @@ file with a word that isn't five letters or a word listed twice.
 
 All routes are under `/api`.
 
-| Request                                            | Returns                                                         |
-| -------------------------------------------------- | --------------------------------------------------------------- |
-| `POST /games`                                      | A new game: id, status, guesses, words remaining                |
-| `POST /games/:id/guesses` with `{"word": "crane"}` | The guess's colours and the updated game                        |
-| `GET /games/:id/hint`                              | Words remaining and the top five suggestions with their entropy |
+| Request                                            | Returns                                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `POST /games`                                      | A new game: id, status, guesses, words remaining                                            |
+| `POST /games/:id/guesses` with `{"word": "crane"}` | The guess's colours and the updated game                                                    |
+| `GET /games/:id/hint`                              | Words remaining and the top five suggestions with their entropy                             |
+| `GET /simulation`                                  | The last simulation's totals, date and time taken, and the run going on or the last failure |
+| `POST /simulation/runs`                            | Starts the simulate command, or joins the run already going (202)                           |
 
 The secret word is only included once the game is won or lost.
 
 Errors have the body `{ statusCode, code, message }`:
 
-| Status | Code               | When                                     |
-| ------ | ------------------ | ---------------------------------------- |
-| 400    | `not-five-letters` | The guess isn't five letters             |
-| 400    | `not-in-word-list` | The guess isn't a word we accept         |
-| 400    | `invalid-body`     | The body has no `word` string            |
-| 404    | `game-not-found`   | Unknown id, or the game has expired      |
-| 409    | `game-over`        | A guess or hint after the game has ended |
+| Status | Code                    | When                                        |
+| ------ | ----------------------- | ------------------------------------------- |
+| 400    | `not-five-letters`      | The guess isn't five letters                |
+| 400    | `not-in-word-list`      | The guess isn't a word we accept            |
+| 400    | `invalid-body`          | The body has no `word` string               |
+| 404    | `game-not-found`        | Unknown id, or the game has expired         |
+| 409    | `game-over`             | A guess or hint after the game has ended    |
+| 500    | `simulation-unreadable` | The saved simulation file is not valid JSON |
 
 Games are kept in memory: removed after an hour without a guess or hint, two
 minutes after they end, or when more than 1,000 exist (least recently used
@@ -177,6 +181,13 @@ it took, the totals, and every game's guesses. The results never vary between
 runs: the solver has no randomness, so they change only when the word lists or
 the solver change. `simulation-file.spec.ts` replays every 100th game and
 fails if the saved file no longer matches.
+
+`POST /api/simulation/runs` runs the same command from the server, as a
+separate process capped at 64 MB of memory, so a run that fails or runs out of
+memory stops only itself. Only one runs at a time; asking again while one is
+going joins it. `GET /api/simulation` shows its progress, then the new
+results. This works in both `yarn dev` and `yarn start`, since both compile
+the command to `dist/simulate.js`.
 
 The last full run won all 2,315 games, averaging 3.46 guesses:
 
