@@ -1,11 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Board } from './Board.tsx';
+import { headlineFor } from './headline.ts';
 import { Keyboard } from './Keyboard.tsx';
+import { Side } from './Side.tsx';
 import { keyColours } from './typing.ts';
 import { useGame } from './useGame.ts';
 
 export function App() {
-  const { game, typed, refused, keyGuesses, over, press, newGame } = useGame();
+  const {
+    game,
+    typed,
+    previous,
+    notice,
+    refused,
+    revealed,
+    over,
+    press,
+    retry,
+    newGame,
+  } = useGame();
   const [flash, setFlash] = useState<{ key: string; id: number } | null>(null);
   const guesses = game?.guesses ?? [];
 
@@ -36,17 +49,24 @@ export function App() {
         </button>
       </header>
       <main className="split">
-        <section className="side" />
-        <section className="game" aria-label="Game">
+        <Side
+          headline={headlineFor(revealed, previous, notice)}
+          onRetry={notice?.kind === 'unreachable' ? retry : null}
+        />
+        <section
+          className={`game ${notice?.kind === 'unreachable' ? 'faded' : ''}`}
+          aria-label="Game"
+        >
           <Board
             guesses={guesses}
             typed={typed}
             rows={game?.maxGuesses ?? 6}
             refused={refused}
+            refusedRow={notice?.kind === 'refused'}
             won={game?.status === 'won'}
           />
           <Keyboard
-            colours={keyColours(keyGuesses)}
+            colours={keyColours(revealed?.guesses ?? [])}
             disabled={over}
             flash={flash}
             onKey={pressAndFlash}

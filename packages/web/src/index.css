@@ -5,6 +5,8 @@
   --key: #e3eaf1;
   --ink: #1f2b3a;
   --spent: #93a5b9;
+  --soft: #eaf0f5;
+  --bad: #ffb4ab;
   --accent: #ff8a3d;
   --green: #3daa5c;
   --mustard: #f5d547;
@@ -78,6 +80,36 @@ body {
 
 .side {
   flex: 0 1 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.headline {
+  margin: 0;
+  font-size: 54px;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* A word the game refused: a spell-checker's wavy underline */
+.refused {
+  text-decoration: underline wavy var(--bad);
+  text-decoration-thickness: 4px;
+  text-underline-offset: 10px;
+}
+
+.line {
+  margin: -10px 0 0;
+  font-size: 21px;
+  line-height: 1.4;
+  color: var(--soft);
+}
+
+/* While the server can't be reached nothing can be sent, so the game fades */
+.game.faded {
+  opacity: 0.4;
 }
 
 .game {
@@ -117,6 +149,10 @@ body {
 
 .tile.typed {
   border-color: var(--text);
+}
+
+.tile.bad {
+  border-color: var(--bad);
 }
 
 .tile.green {
@@ -229,6 +265,22 @@ body {
 
   .side {
     flex: none;
+    gap: 12px;
+  }
+
+  .headline {
+    font-size: 28px;
+    line-height: 1.1;
+  }
+
+  .refused {
+    text-decoration-thickness: 3px;
+    text-underline-offset: 7px;
+  }
+
+  .line {
+    margin-top: -4px;
+    font-size: 16px;
   }
 
   .game {

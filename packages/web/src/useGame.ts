@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { ApiError, createGame, guess } from './api.ts';
+import type { Notice } from './headline.ts';
 import { prefersReducedMotion, revealMs } from './motion.ts';
-import type { GameView, Guess } from './types.ts';
+import type { GameView } from './types.ts';
 import { pressKey, WORD_LENGTH } from './typing.ts';
 
 const REFUSED = ['not-in-word-list', 'not-five-letters'];
@@ -10,15 +11,21 @@ const REFUSED = ['not-in-word-list', 'not-five-letters'];
 export function useGame() {
   const [game, setGame] = useState<GameView | null>(null);
   const [typed, setTypedState] = useState('');
+  // The count before the last guess, to tell when a guess ruled nothing out
+  const [previous, setPrevious] = useState<number | null>(null);
+  const [notice, setNotice] = useState<Notice | null>(null);
   // Counts refusals in a row, so the row wobbles again each time
   const [refused, setRefused] = useState(0);
-  // The keys take a guess's colours only once its tiles have flipped
-  const [keyGuesses, setKeyGuesses] = useState<Guess[]>([]);
+  // The game as of the last row that finished flipping. The keys and the
+  // headline follow this one, so they don't give a guess away early.
+  const [revealed, setRevealed] = useState<GameView | null>(null);
   // Refs see every change at once, so key presses that arrive before the
   // next render still build on each other and Enter can't send twice.
   const typedRef = useRef('');
   const busyRef = useRef(false);
   const gameRef = useRef<GameView | null>(null);
+  // Set while the server can't be reached: what "Try again" repeats
+  const retryRef = useRef<(() => Promise<void>) | null>(null);
 
   function setTyped(value: string) {
     typedRef.current = value;
@@ -30,15 +37,28 @@ export function useGame() {
     setGame(value);
   }
 
+  function unreachable(retry: () => Promise<void>) {
+    retryRef.current = retry;
+    setNotice({ kind: 'unreachable' });
+  }
+
+  function reached() {
+    retryRef.current = null;
+    setNotice(null);
+  }
+
   async function newGame() {
     busyRef.current = true;
     try {
-      showGame(await createGame());
+      const created = await createGame();
+      showGame(created);
+      setRevealed(created);
+      reached();
       setTyped('');
+      setPrevious(null);
       setRefused(0);
-      setKeyGuesses([]);
     } catch {
-      // Shown to the player in step 13
+      unreachable(newGame);
     } finally {
       busyRef.current = false;
     }
@@ -48,20 +68,25 @@ export function useGame() {
     busyRef.current = true;
     try {
       const response = await guess(gameId, word);
+      const before = gameRef.current?.remainingWords ?? null;
       showGame(response.game);
+      reached();
       setTyped('');
       setRefused(0);
       const delay = prefersReducedMotion() ? 0 : revealMs(WORD_LENGTH);
       setTimeout(() => {
         // Skip it if New game was pressed while the row was flipping
         if (gameRef.current?.id === gameId) {
-          setKeyGuesses(response.game.guesses);
+          setPrevious(before);
+          setRevealed(response.game);
         }
       }, delay);
     } catch (error) {
-      // A refused word stays in the row; its message comes in step 13
       if (error instanceof ApiError && REFUSED.includes(error.code)) {
+        setNotice({ kind: 'refused', word });
         setRefused((n) => n + 1);
+      } else {
+        unreachable(() => submit(gameId, word));
       }
     } finally {
       busyRef.current = false;
@@ -71,11 +96,25 @@ export function useGame() {
   function press(key: string) {
     const current = gameRef.current;
     const locked =
-      busyRef.current || current === null || current.status !== 'playing';
+      busyRef.current ||
+      retryRef.current !== null ||
+      current === null ||
+      current.status !== 'playing';
     const result = pressKey(typedRef.current, key, locked);
-    if ('submit' in result) void submit(current!.id, result.submit);
-    else if (result.tooShort) setRefused((n) => n + 1);
-    else setTyped(result.typed);
+    if ('submit' in result) {
+      void submit(current!.id, result.submit);
+    } else if (result.tooShort) {
+      setNotice({ kind: 'too-short' });
+      setRefused((n) => n + 1);
+    } else if (result.typed !== typedRef.current) {
+      setTyped(result.typed);
+      // Typing again puts the count back in the headline
+      setNotice((n) => (n?.kind === 'unreachable' ? n : null));
+    }
+  }
+
+  function retry() {
+    if (retryRef.current && !busyRef.current) void retryRef.current();
   }
 
   useEffect(() => {
@@ -83,5 +122,16 @@ export function useGame() {
   }, []);
 
   const over = game !== null && game.status !== 'playing';
-  return { game, typed, refused, keyGuesses, over, press, newGame };
+  return {
+    game,
+    typed,
+    previous,
+    notice,
+    refused,
+    revealed,
+    over,
+    press,
+    retry,
+    newGame,
+  };
 }

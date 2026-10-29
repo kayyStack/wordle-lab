@@ -15,10 +15,19 @@ interface BoardProps {
   rows: number;
   /** Refusals of the row being typed; each one makes it wobble again */
   refused: number;
+  /** The row being typed holds a word the game refused: outline it */
+  refusedRow: boolean;
   won: boolean;
 }
 
-export function Board({ guesses, typed, rows, refused, won }: BoardProps) {
+export function Board({
+  guesses,
+  typed,
+  rows,
+  refused,
+  refusedRow,
+  won,
+}: BoardProps) {
   const latest = guesses.length - 1;
   return (
     <div className="board" aria-label="Board">
@@ -38,7 +47,9 @@ export function Board({ guesses, typed, rows, refused, won }: BoardProps) {
             {Array.from({ length: WORD_LENGTH }, (_, i) => {
               const letter = letters[i] ?? '';
               const colour = guess?.colours[i];
-              const state = colour ?? (letter ? 'typed' : '');
+              const state =
+                colour ??
+                (current && refusedRow ? 'bad' : letter ? 'typed' : '');
               return (
                 <span
                   className={`tile ${state}`}
