@@ -87,6 +87,7 @@ All routes are under `/api`.
 | Request                                            | Returns                                                                                     |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `POST /games`                                      | A new game: id, status, guesses, words remaining                                            |
+| `GET /games/:id`                                   | The game as it stands, so the page can pick it up again after a reload                      |
 | `POST /games/:id/guesses` with `{"word": "crane"}` | The guess's colours and the updated game                                                    |
 | `GET /games/:id/hint`                              | Words remaining and the top five suggestions with their entropy                             |
 | `GET /simulation`                                  | The last simulation's totals, date and time taken, and the run going on or the last failure |

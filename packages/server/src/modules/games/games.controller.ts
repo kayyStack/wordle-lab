@@ -23,6 +23,12 @@ export class GamesController {
     return toView(id, game);
   }
 
+  // Lets the page pick up a game it started earlier, after a reload
+  @Get(':id')
+  find(@Param('id') id: string) {
+    return toView(id, this.games.find(id));
+  }
+
   @Post(':id/guesses')
   @HttpCode(200)
   guess(

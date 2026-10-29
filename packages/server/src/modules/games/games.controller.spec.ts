@@ -73,6 +73,22 @@ describe('games API', () => {
     expect(res.body.game).toMatchObject({ status: 'won', secret: 'SHAKE' });
   });
 
+  it('returns a game in progress without its secret', async () => {
+    const id = startGame('SHAKE');
+    await request('POST', `/games/${id}/guesses`, { word: 'crane' });
+    const res = await request('GET', `/games/${id}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      id,
+      status: 'playing',
+      remainingWords: 44,
+      secret: null,
+    });
+    expect(res.body.guesses.map((g: { word: string }) => g.word)).toEqual([
+      'CRANE',
+    ]);
+  });
+
   describe('errors', () => {
     async function guess(id: string, body: object) {
       return request('POST', `/games/${id}/guesses`, body);
@@ -110,7 +126,8 @@ describe('games API', () => {
     it('reports an unknown game id', async () => {
       const guessRes = await guess('no-such-game', { word: 'crane' });
       const hintRes = await request('GET', '/games/no-such-game/hint');
-      for (const res of [guessRes, hintRes]) {
+      const findRes = await request('GET', '/games/no-such-game');
+      for (const res of [guessRes, hintRes, findRes]) {
         expect(res.status).toBe(404);
         expect(res.body.code).toBe('game-not-found');
       }
