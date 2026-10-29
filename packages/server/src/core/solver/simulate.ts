@@ -14,6 +14,8 @@ export interface SimulationSummary {
   average: number;
   /** How many games took each number of guesses, e.g. { 3: 1200 } */
   byGuesses: Record<number, number>;
+  /** The game that took the most guesses; the first one when several tie */
+  hardest: SimulatedGame;
 }
 
 /**
@@ -62,9 +64,17 @@ export function simulate(
 export function summarise(games: readonly SimulatedGame[]): SimulationSummary {
   const byGuesses: Record<number, number> = {};
   let total = 0;
-  for (const { guesses } of games) {
-    byGuesses[guesses.length] = (byGuesses[guesses.length] ?? 0) + 1;
-    total += guesses.length;
+  let hardest = games[0];
+  for (const game of games) {
+    const { length } = game.guesses;
+    byGuesses[length] = (byGuesses[length] ?? 0) + 1;
+    total += length;
+    if (length > hardest.guesses.length) hardest = game;
   }
-  return { games: games.length, average: total / games.length, byGuesses };
+  return {
+    games: games.length,
+    average: total / games.length,
+    byGuesses,
+    hardest,
+  };
 }

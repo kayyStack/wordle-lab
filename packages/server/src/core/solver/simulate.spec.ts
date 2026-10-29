@@ -27,6 +27,7 @@ describe('simulate', () => {
         games: 6,
         average: 13 / 6,
         byGuesses: { 2: 5, 3: 1 },
+        hardest: { secret: 'NIGHT', guesses: ['FIRMS', 'LIGHT', 'NIGHT'] },
       });
     });
   });

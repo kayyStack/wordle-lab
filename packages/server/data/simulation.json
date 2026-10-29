@@ -1,6 +1,6 @@
 {
-  "ranAt": "2026-10-29T11:36:24.296Z",
-  "durationMs": 15012,
+  "ranAt": "2026-10-29T12:39:24.217Z",
+  "durationMs": 14948,
   "summary": {
     "games": 2315,
     "average": 3.464362850971922,
@@ -10,6 +10,17 @@
       "4": 990,
       "5": 63,
       "6": 1
+    },
+    "hardest": {
+      "secret": "WAVER",
+      "guesses": [
+        "SOARE",
+        "TALAR",
+        "PIGMY",
+        "ARROW",
+        "WAFER",
+        "WAVER"
+      ]
     }
   },
   "games": [
