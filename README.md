@@ -155,10 +155,28 @@ the count and entropy to a player through one example game.
 - Web (Vitest): typing and key colours, the headline and messages, hint
   wording and bit formatting, reduced motion.
 
-## Not done
+## Simulate
 
-The optional "simulate" stretch (run the solver against every answer and
-count guesses) was not built.
+The solver plays one game for every possible answer, always guessing its own
+top suggestion, and counts the guesses each game needed:
+
+```
+yarn build
+node packages/server/dist/simulate.js            # all 2,315 games, about 15 s
+node packages/server/dist/simulate.js --limit 50 # a quick check, not saved
+```
+
+A full run saves `packages/server/data/simulation.json`: the date, how long
+it took, the totals, and every game's guesses. The results never vary between
+runs: the solver has no randomness, so they change only when the word lists or
+the solver change. `simulation-file.spec.ts` replays every 100th game and
+fails if the saved file no longer matches.
+
+The last full run won all 2,315 games, averaging 3.46 guesses:
+
+| Guesses | 2   | 3     | 4   | 5   | 6   |
+| ------- | --- | ----- | --- | --- | --- |
+| Games   | 44  | 1,217 | 990 | 63  | 1   |
 
 ## Use of AI
 

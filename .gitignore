@@ -8,6 +8,9 @@ dist/
 # Test output
 coverage/
 
+# Left behind if a simulation run dies while saving
+packages/server/data/*.tmp
+
 # Local environment
 .env
 .env.*
