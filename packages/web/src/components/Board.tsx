@@ -1,9 +1,10 @@
 import type { CSSProperties } from 'react';
 import { STAGGER_MS } from '../lib/motion.ts';
-import type { Guess } from '../api/types.ts';
+import type { Guess, TileColour } from '../api/types.ts';
 import { WORD_LENGTH } from '../lib/typing.ts';
 
-const COLOUR_NAMES = {
+/** What each colour tells the player, for screen readers */
+export const COLOUR_NAMES: Record<TileColour, string> = {
   green: 'right spot',
   yellow: 'wrong spot',
   gray: 'not in word',
@@ -14,7 +15,7 @@ interface BoardProps {
   typed: string;
   rows: number;
   /** Refusals of the row being typed; each one makes it wobble again */
-  refused: number;
+  refusals: number;
   /** The row being typed holds a word the game refused: outline it */
   refusedRow: boolean;
   won: boolean;
@@ -24,7 +25,7 @@ export function Board({
   guesses,
   typed,
   rows,
-  refused,
+  refusals,
   refusedRow,
   won,
 }: BoardProps) {
@@ -38,11 +39,11 @@ export function Board({
         // The newest guess flips; the winning row then wobbles. A new key
         // remounts the row being typed, so each refusal replays its wobble.
         const motion = row === latest ? (won ? 'reveal win' : 'reveal') : '';
-        const shake = current && refused > 0 ? 'shake' : '';
+        const wobble = current && refusals > 0 ? 'wobble' : '';
         return (
           <div
-            className={`board-row ${motion} ${shake}`}
-            key={current ? `${row}-${refused}` : row}
+            className={`board-row ${motion} ${wobble}`}
+            key={current ? `${row}-${refusals}` : row}
           >
             {Array.from({ length: WORD_LENGTH }, (_, i) => {
               const letter = letters[i] ?? '';

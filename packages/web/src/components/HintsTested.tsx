@@ -1,21 +1,26 @@
 import { useEffect, useState } from 'react';
 import { simulationStatus, startSimulation } from '../api/client.ts';
+import { count } from '../lib/format.ts';
 import { lastRunText, resultText, seconds } from '../lib/simulationText.ts';
-import type { SimulationResults, SimulationStatus } from '../api/types.ts';
+import type {
+  SimulationResults,
+  SimulationRun,
+  SimulationStatus,
+} from '../api/types.ts';
 
 // How often to ask for progress while a run is going
 const POLL_MS = 1000;
+
+interface HintsTestedProps {
+  /** Called once the first answer (or failure) from the server is in */
+  onSettled?: () => void;
+}
 
 /**
  * "How good are the hints?": the helper's results over every possible secret
  * word, and a button to play them all again. A run started by anyone shows
  * here as it goes, since everyone asks the same server.
  */
-interface HintsTestedProps {
-  /** Called once the first answer (or failure) from the server is in */
-  onSettled?: () => void;
-}
-
 export function HintsTested({ onSettled }: HintsTestedProps) {
   const [status, setStatus] = useState<SimulationStatus | null>(null);
   const [unreachable, setUnreachable] = useState(false);
@@ -55,7 +60,6 @@ export function HintsTested({ onSettled }: HintsTestedProps) {
   }, [running, unreachable]);
 
   const results = status?.results ?? null;
-  const failed = !running && status?.failure;
 
   return (
     <section className="help-section" id="hints-tested">
@@ -70,85 +74,131 @@ export function HintsTested({ onSettled }: HintsTestedProps) {
           always guessing its own top hint, the same one you would see.
         </p>
         {results && !unreachable && <ResultLine summary={results.summary} />}
-
-        {unreachable ? (
-          <div className="run-message" role="alert">
-            <strong>We can't reach the game right now.</strong>
-            <span className="note">Try again in a moment.</span>
-            <div>
-              <button className="pill primary" onClick={() => void load()}>
-                Try again
-              </button>
-            </div>
-          </div>
-        ) : running ? (
-          <div className="run-message" aria-live="polite">
-            <strong>
-              {running.total > 0
-                ? `Simulating game ${running.done.toLocaleString('en-US')} of ${running.total.toLocaleString('en-US')}…`
-                : 'Starting…'}
-            </strong>
-            <div className="bar progress">
-              <span
-                style={{
-                  width: `${running.total ? (running.done / running.total) * 100 : 0}%`,
-                }}
-              />
-            </div>
-          </div>
-        ) : confirming && results ? (
-          <div className="run-message">
-            <strong>Play all 2,315 games again?</strong>
-            <span className="note">
-              The last run took {seconds(results.durationMs)}. You'll get the
-              same results unless the word lists or the way hints are chosen
-              have changed since.
-            </span>
-            <div className="run-actions">
-              <button className="pill secondary" onClick={() => void start()}>
-                Play them
-              </button>
-              <button className="link" onClick={() => setConfirming(false)}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        ) : failed ? (
-          <div className="run-message" role="alert">
-            <strong>That run stopped before it finished.</strong>
-            <span className="note">Try again later.</span>
-            <div>
-              <button className="pill primary" onClick={() => void start()}>
-                Try again
-              </button>
-            </div>
-          </div>
-        ) : status && !results ? (
-          <div className="run-message">
-            <div>
-              <button className="pill secondary" onClick={() => void start()}>
-                Play all 2,315 games
-              </button>
-            </div>
-            <span className="note">It can take up to a minute.</span>
-          </div>
-        ) : results ? (
-          <div className="run-message">
-            <div>
-              <button
-                className="pill secondary"
-                onClick={() => setConfirming(true)}
-              >
-                Play them all again
-              </button>
-            </div>
-            <span className="note">{lastRunText(results)}</span>
-          </div>
-        ) : null}
+        <RunControls
+          status={status}
+          unreachable={unreachable}
+          confirming={confirming}
+          onLoad={() => void load()}
+          onStart={() => void start()}
+          onConfirm={setConfirming}
+        />
       </div>
 
       {!unreachable && status && <Distribution status={status} />}
     </section>
+  );
+}
+
+interface RunControlsProps {
+  status: SimulationStatus | null;
+  unreachable: boolean;
+  confirming: boolean;
+  onLoad: () => void;
+  onStart: () => void;
+  onConfirm: (confirming: boolean) => void;
+}
+
+/** The message and button under the copy: one for each state of a run */
+function RunControls({
+  status,
+  unreachable,
+  confirming,
+  onLoad,
+  onStart,
+  onConfirm,
+}: RunControlsProps) {
+  if (unreachable) {
+    return (
+      <div className="run-message" role="alert">
+        <strong>We can't reach the game right now.</strong>
+        <span className="note">Try again in a moment.</span>
+        <div>
+          <button className="pill primary" onClick={onLoad}>
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+  if (!status) return null;
+
+  const { results, run, failure } = status;
+  if (run) return <Progress run={run} />;
+
+  if (confirming && results) {
+    return (
+      <div className="run-message">
+        <strong>Play all 2,315 games again?</strong>
+        <span className="note">
+          The last run took {seconds(results.durationMs)}. You'll get the same
+          results unless the word lists or the way hints are chosen have changed
+          since.
+        </span>
+        <div className="run-actions">
+          <button className="pill secondary" onClick={onStart}>
+            Play them
+          </button>
+          <button className="link" onClick={() => onConfirm(false)}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (failure) {
+    return (
+      <div className="run-message" role="alert">
+        <strong>That run stopped before it finished.</strong>
+        <span className="note">Try again later.</span>
+        <div>
+          <button className="pill primary" onClick={onStart}>
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!results) {
+    return (
+      <div className="run-message">
+        <div>
+          <button className="pill secondary" onClick={onStart}>
+            Play all 2,315 games
+          </button>
+        </div>
+        <span className="note">It can take up to a minute.</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="run-message">
+      <div>
+        <button className="pill secondary" onClick={() => onConfirm(true)}>
+          Play them all again
+        </button>
+      </div>
+      <span className="note">{lastRunText(results)}</span>
+    </div>
+  );
+}
+
+/** "Simulating game 812 of 2,315…" and a bar */
+function Progress({ run }: { run: SimulationRun }) {
+  const share = run.total ? (run.done / run.total) * 100 : 0;
+  return (
+    <div className="run-message" aria-live="polite">
+      <strong>
+        {run.total > 0
+          ? `Simulating game ${count(run.done)} of ${count(run.total)}…`
+          : 'Starting…'}
+      </strong>
+      <div className="bar progress">
+        <span style={{ width: `${share}%` }} />
+      </div>
+    </div>
   );
 }
 
@@ -181,7 +231,7 @@ function Distribution({ status }: { status: SimulationStatus }) {
             <div className="dist-track">
               <span style={{ width: `${(r.games / most) * 100}%` }} />
             </div>
-            <span>{status.results ? r.games.toLocaleString('en-US') : ''}</span>
+            <span>{status.results ? count(r.games) : ''}</span>
           </div>
         ))}
       </div>

@@ -1,5 +1,6 @@
 import { formatBits, hintReason, maxBits } from '../lib/hintText.ts';
 import type { HintResponse } from '../api/types.ts';
+import { count } from '../lib/format.ts';
 
 interface HintProps {
   hint: HintResponse;
@@ -22,10 +23,8 @@ export function Hint({ hint, onHide }: HintProps) {
         </button>
       </header>
       <p className="remaining">
-        <span className="display">
-          {hint.remainingWords.toLocaleString('en-US')}
-        </span>{' '}
-        words remaining
+        <span className="display">{count(hint.remainingWords)}</span> words
+        remaining
       </p>
       <h1 className="display headline">
         Try <span className="word">{best.word}</span>.

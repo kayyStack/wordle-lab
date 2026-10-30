@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Board } from '../../components/Board.tsx';
 import { headlineFor } from '../../lib/headline.ts';
+import { HeadlinePanel } from '../../components/HeadlinePanel.tsx';
 import { Hint } from '../../components/Hint.tsx';
 import { Keyboard } from '../../components/Keyboard.tsx';
-import { Side } from '../../components/Side.tsx';
 import { keyColours } from '../../lib/typing.ts';
 import { useGame } from '../../hooks/useGame.ts';
 
 export function App() {
   const {
     game,
-    typed,
-    previous,
-    notice,
-    refused,
     revealed,
+    typed,
+    countBefore,
+    notice,
+    refusals,
     over,
     hint,
     press,
@@ -25,14 +25,17 @@ export function App() {
   } = useGame();
   const [flash, setFlash] = useState<{ key: string; id: number } | null>(null);
   const guesses = game?.guesses ?? [];
-  // A hint can help while the game is on. While a row is flipping the button
-  // stays put (so the headline doesn't move) but waits, so the hint can't
-  // show the new count before the tiles do.
-  const canHint =
-    game?.status === 'playing' &&
-    notice?.kind !== 'unreachable' &&
-    notice?.kind !== 'ended';
+  // Nothing can be sent: the server is down or no longer has this game
+  const cutOff = notice?.kind === 'unreachable' || notice?.kind === 'ended';
+  // While a row is flipping the hint button stays put (so the headline
+  // doesn't move) but waits, so the hint can't show the new count before
+  // the tiles do.
+  const canHint = game?.status === 'playing' && !cutOff;
   const flipping = revealed?.guesses.length !== guesses.length;
+
+  let onRetry: (() => void) | null = null;
+  if (notice?.kind === 'unreachable') onRetry = retry;
+  if (notice?.kind === 'hint-failed') onRetry = () => void openHint();
 
   function pressAndFlash(key: string) {
     const name = key.length === 1 ? key.toUpperCase() : key;
@@ -69,28 +72,19 @@ export function App() {
         {hint ? (
           <Hint hint={hint} onHide={closeHint} />
         ) : (
-          <Side
-            headline={headlineFor(revealed, previous, notice)}
-            onRetry={
-              notice?.kind === 'unreachable'
-                ? retry
-                : notice?.kind === 'hint-failed'
-                  ? () => void openHint()
-                  : null
-            }
+          <HeadlinePanel
+            headline={headlineFor(revealed, countBefore, notice)}
+            onRetry={onRetry}
             onHint={canHint ? () => void openHint() : null}
             hintWaiting={flipping}
           />
         )}
-        <section
-          className={`game ${notice?.kind === 'unreachable' || notice?.kind === 'ended' ? 'faded' : ''}`}
-          aria-label="Game"
-        >
+        <section className={`game ${cutOff ? 'faded' : ''}`} aria-label="Game">
           <Board
             guesses={guesses}
             typed={typed}
             rows={game?.maxGuesses ?? 6}
-            refused={refused}
+            refusals={refusals}
             refusedRow={notice?.kind === 'refused'}
             won={game?.status === 'won'}
           />

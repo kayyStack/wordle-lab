@@ -1,4 +1,5 @@
 import type { Suggestion } from '../api/types.ts';
+import { count } from './format.ts';
 
 /** The most entropy any guess can have with this many words left: log2 of the count. */
 export function maxBits(remainingWords: number): number {
@@ -19,7 +20,6 @@ export function hintReason(
     return "It's the only word left, so it must be the secret word.";
   }
   const ruledOut = remainingWords - suggestion.worstCase;
-  const count = (n: number) => n.toLocaleString('en-US');
   const rest = `it will rule out at least ${count(ruledOut)} of the ${count(remainingWords)} remaining possible secret words.`;
   return suggestion.couldBeAnswer
     ? `It could be the secret word. If it isn't, ${rest}`

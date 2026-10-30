@@ -14,21 +14,32 @@ import { pressKey, WORD_LENGTH } from '../lib/typing.ts';
 
 const REFUSED = ['not-in-word-list', 'not-five-letters'];
 
-/** The current game, the letters typed so far, and the actions the page can take. */
+const isGone = (error: unknown) =>
+  error instanceof ApiError && error.code === 'game-not-found';
+
+/**
+ * The current game, the letters typed so far, and the actions the page can take.
+ *
+ * The game is held three ways:
+ * - `game`: the latest from the server. The board shows it, so a new row
+ *   starts flipping as soon as the guess comes back.
+ * - `revealed`: the game as of the last row that finished flipping. The
+ *   headline and keys follow it, so they don't give a guess away early.
+ * - `gameRef`: the same as `game`, but readable before the next render.
+ */
 export function useGame() {
   const [game, setGame] = useState<GameView | null>(null);
+  const [revealed, setRevealed] = useState<GameView | null>(null);
   const [typed, setTypedState] = useState('');
   // The count before the last guess, to tell when a guess ruled nothing out
-  const [previous, setPrevious] = useState<number | null>(null);
+  const [countBefore, setCountBefore] = useState<number | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   // The hint the player asked for. A new guess makes it stale, but it stays
   // open until that guess's row has flipped, so the page changes only once.
   const [hint, setHint] = useState<HintResponse | null>(null);
-  // Counts refusals in a row, so the row wobbles again each time
-  const [refused, setRefused] = useState(0);
-  // The game as of the last row that finished flipping. The keys and the
-  // headline follow this one, so they don't give a guess away early.
-  const [revealed, setRevealed] = useState<GameView | null>(null);
+  // Refusals in a row; each one makes the typed row wobble again
+  const [refusals, setRefusals] = useState(0);
+
   // Refs see every change at once, so key presses that arrive before the
   // next render still build on each other and Enter can't send twice.
   const typedRef = useRef('');
@@ -49,9 +60,20 @@ export function useGame() {
     setGame(value);
   }
 
+  // Clears a message once the player moves on; "can't reach" stays until a
+  // request gets through
+  function clearNotice() {
+    setNotice((n) => (n?.kind === 'unreachable' ? n : null));
+  }
+
   function unreachable(retry: () => Promise<void>) {
     retryRef.current = retry;
     setNotice({ kind: 'unreachable' });
+  }
+
+  function reached() {
+    retryRef.current = null;
+    setNotice(null);
   }
 
   function ended() {
@@ -59,14 +81,6 @@ export function useGame() {
     retryRef.current = null;
     setHint(null);
     setNotice({ kind: 'ended' });
-  }
-
-  const isGone = (error: unknown) =>
-    error instanceof ApiError && error.code === 'game-not-found';
-
-  function reached() {
-    retryRef.current = null;
-    setNotice(null);
   }
 
   async function newGame() {
@@ -80,8 +94,8 @@ export function useGame() {
       setHint(null);
       reached();
       setTyped('');
-      setPrevious(null);
-      setRefused(0);
+      setCountBefore(null);
+      setRefusals(0);
     } catch {
       unreachable(newGame);
     } finally {
@@ -97,12 +111,12 @@ export function useGame() {
       showGame(response.game);
       reached();
       setTyped('');
-      setRefused(0);
+      setRefusals(0);
       const delay = prefersReducedMotion() ? 0 : revealMs(WORD_LENGTH);
       setTimeout(() => {
         // Skip it if New game was pressed while the row was flipping
         if (gameRef.current?.id === gameId) {
-          setPrevious(before);
+          setCountBefore(before);
           setRevealed(response.game);
           setHint(null);
         }
@@ -110,7 +124,7 @@ export function useGame() {
     } catch (error) {
       if (error instanceof ApiError && REFUSED.includes(error.code)) {
         setNotice({ kind: 'refused', word });
-        setRefused((n) => n + 1);
+        setRefusals((n) => n + 1);
       } else if (isGone(error)) {
         ended();
       } else {
@@ -134,11 +148,10 @@ export function useGame() {
       void submit(current!.id, result.submit);
     } else if (result.tooShort) {
       setNotice({ kind: 'too-short' });
-      setRefused((n) => n + 1);
+      setRefusals((n) => n + 1);
     } else if (result.typed !== typedRef.current) {
       setTyped(result.typed);
-      // Typing again puts the count back in the headline
-      setNotice((n) => (n?.kind === 'unreachable' ? n : null));
+      clearNotice();
     }
   }
 
@@ -147,7 +160,7 @@ export function useGame() {
     if (!current || busyRef.current) return;
     try {
       setHint(await fetchHint(current.id));
-      setNotice((n) => (n?.kind === 'unreachable' ? n : null));
+      clearNotice();
     } catch (error) {
       if (isGone(error)) ended();
       else setNotice({ kind: 'hint-failed' });
@@ -185,11 +198,11 @@ export function useGame() {
   const over = game !== null && game.status !== 'playing';
   return {
     game,
-    typed,
-    previous,
-    notice,
-    refused,
     revealed,
+    typed,
+    countBefore,
+    notice,
+    refusals,
     over,
     hint,
     press,

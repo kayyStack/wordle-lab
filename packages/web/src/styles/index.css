@@ -506,7 +506,7 @@ body {
     calc(var(--i) * var(--stagger)), calc(1.5s + var(--i) * 60ms);
 }
 
-.board-row.shake .tile {
+.board-row.wobble .tile {
   animation: wobble 0.55s ease-in-out;
   animation-delay: calc(var(--i) * 60ms);
 }

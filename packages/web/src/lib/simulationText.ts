@@ -1,4 +1,5 @@
 import type { SimulationResults } from '../api/types.ts';
+import { count } from './format.ts';
 
 const MAX_GUESSES = 6;
 
@@ -17,7 +18,7 @@ export function resultText(summary: Summary): string {
   const won =
     lost === 0
       ? 'It won every game.'
-      : `It won ${(summary.games - lost).toLocaleString('en-US')} of the ${summary.games.toLocaleString('en-US')} games.`;
+      : `It won ${count(summary.games - lost)} of the ${count(summary.games)} games.`;
 
   // The two most common numbers of guesses, smaller first
   const common = [...counts]

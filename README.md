@@ -46,7 +46,7 @@ Server paths are under `packages/server/src/`, page paths under
 | Start a game, guess, hint, clear errors  | `modules/games/` ([API](#api))                    |
 | Board, keyboard, coloured tiles          | `components/Board.tsx`, `components/Keyboard.tsx` |
 | Hint panel                               | `components/Hint.tsx`                             |
-| "Words remaining" counter                | `components/Side.tsx`                             |
+| "Words remaining" counter                | `lib/headline.ts`, `components/HeadlinePanel.tsx` |
 | Errors without breaking the page         | `hooks/useGame.ts`                                |
 | Simulate (optional)                      | [Simulation](#simulation)                         |
 

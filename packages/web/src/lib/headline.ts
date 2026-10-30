@@ -1,4 +1,5 @@
 import type { GameView } from '../api/types.ts';
+import { count } from './format.ts';
 
 /** Something the page must tell the player before going back to the count. */
 export type Notice =
@@ -15,10 +16,8 @@ export interface Headline {
   line: string;
 }
 
-const count = (n: number) => n.toLocaleString('en-US');
-
 /** The count, as the base page says it. */
-function countHeadline(game: GameView, previous: number | null): Headline {
+function countHeadline(game: GameView, countBefore: number | null): Headline {
   const n = game.remainingWords;
   if (game.guesses.length === 0) {
     return {
@@ -32,7 +31,7 @@ function countHeadline(game: GameView, previous: number | null): Headline {
       line: 'Your guesses have ruled out all the others.',
     };
   }
-  if (n === previous) {
+  if (n === countBefore) {
     return {
       title: "That guess didn't rule any out.",
       line: `${count(n)} words could still be the secret word.`,
@@ -45,12 +44,12 @@ function countHeadline(game: GameView, previous: number | null): Headline {
 }
 
 /**
- * What the left column says. `previous` is the count before the last guess,
+ * What the left column says. `countBefore` is the count before the last guess,
  * so the page can tell when a guess ruled nothing out.
  */
 export function headlineFor(
   game: GameView | null,
-  previous: number | null,
+  countBefore: number | null,
   notice: Notice | null,
 ): Headline | null {
   if (notice?.kind === 'unreachable') {
@@ -90,7 +89,7 @@ export function headlineFor(
     };
   }
 
-  const base = countHeadline(game, previous);
+  const base = countHeadline(game, countBefore);
   if (notice?.kind === 'refused') {
     return {
       refusedWord: notice.word,

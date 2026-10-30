@@ -1,6 +1,6 @@
 import type { Headline } from '../lib/headline.ts';
 
-interface SideProps {
+interface HeadlinePanelProps {
   headline: Headline | null;
   /** Shown while the server can't be reached, or after a hint failed */
   onRetry: (() => void) | null;
@@ -10,8 +10,13 @@ interface SideProps {
   hintWaiting: boolean;
 }
 
-/** The left column: one headline and one line under it. */
-export function Side({ headline, onRetry, onHint, hintWaiting }: SideProps) {
+/** The left column: one headline, one line under it, and one button. */
+export function HeadlinePanel({
+  headline,
+  onRetry,
+  onHint,
+  hintWaiting,
+}: HeadlinePanelProps) {
   if (!headline) return <section className="side" />;
   const word = headline.refusedWord;
   return (

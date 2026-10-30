@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
+import { COLOUR_NAMES } from '../../components/Board.tsx';
 import { HintsTested } from '../../components/HintsTested.tsx';
 import type { TileColour } from '../../api/types.ts';
 
@@ -8,11 +9,6 @@ const COLOUR: Record<string, TileColour> = {
   G: 'green',
   Y: 'yellow',
   '.': 'gray',
-};
-const NAMES: Record<TileColour, string> = {
-  green: 'green',
-  yellow: 'yellow',
-  gray: 'dark',
 };
 
 function Row({ word, pattern }: { word: string; pattern?: string }) {
@@ -31,7 +27,10 @@ function Row({ word, pattern }: { word: string; pattern?: string }) {
 function Mini({ pattern }: { pattern: string }) {
   const colours = [...pattern].map((p) => COLOUR[p]);
   return (
-    <span className="mini" aria-label={colours.map((c) => NAMES[c]).join(', ')}>
+    <span
+      className="mini"
+      aria-label={colours.map((c) => COLOUR_NAMES[c]).join(', ')}
+    >
       {colours.map((c, i) => (
         <span className={c} key={i} />
       ))}
@@ -39,11 +38,12 @@ function Mini({ pattern }: { pattern: string }) {
   );
 }
 
-const W = ({ children }: { children: ReactNode }) => (
+const Word = ({ children }: { children: ReactNode }) => (
   <span className="word">{children}</span>
 );
 
-const DUMPS: [string, string, string?][] = [
+// With the 8 words left: each colour pattern a guess can get, and what it leaves
+const DUMPS_OUTCOMES: [string, string, string?][] = [
   ['....Y', 'SHAKE', 'SHAVE'],
   ['Y...Y', 'SHADE'],
   ['..Y.Y', 'SHAME'],
@@ -53,7 +53,7 @@ const DUMPS: [string, string, string?][] = [
   ['.Y..Y', 'USAGE'],
 ];
 
-const SHAKE: [string, string][] = [
+const SHAKE_OUTCOMES: [string, string][] = [
   ['GGGGG', 'You win.'],
   ['GGG.G', '4 words left: SHADE, SHAME, SHAPE, SHAVE'],
   ['G.G.G', '2 words left: SPADE, SUAVE'],
@@ -158,8 +158,8 @@ export function Help() {
             <>
               <p>
                 To show what the colours tell you, the rest of this page follows{' '}
-                <strong>one game</strong>. Its secret word is <W>SHAKE</W>; the
-                player can't see it.
+                <strong>one game</strong>. Its secret word is <Word>SHAKE</Word>
+                ; the player can't see it.
               </p>
               <p>
                 After each guess, every letter changes colour to tell you
@@ -193,8 +193,9 @@ export function Help() {
               </div>
               <Row word="SHEEP" pattern="GGY.." />
               <p className="caption">
-                If the player had guessed <W>SHEEP</W> instead: <W>SHAKE</W> has
-                one E, so only one of SHEEP's two E's turns yellow.
+                If the player had guessed <Word>SHEEP</Word> instead:{' '}
+                <Word>SHAKE</Word> has one E, so only one of SHEEP's two E's
+                turns yellow.
               </p>
             </>
           }
@@ -233,10 +234,12 @@ export function Help() {
                 ))}
               </div>
               <p className="caption">
-                After <W>CRANE</W> and <W>BLAST</W>, only these could work as
-                the secret word:{' '}
-                <W>SHADE, SHAKE, SHAME, SHAPE, SHAVE, SPADE, SUAVE, USAGE</W>.
-                SHAKE is one of them, but the player can't tell which.
+                After <Word>CRANE</Word> and <Word>BLAST</Word>, only these
+                could work as the secret word:{' '}
+                <Word>
+                  SHADE, SHAKE, SHAME, SHAPE, SHAVE, SPADE, SUAVE, USAGE
+                </Word>
+                . SHAKE is one of them, but the player can't tell which.
               </p>
             </>
           }
@@ -282,16 +285,16 @@ export function Help() {
             <>
               <Row word="TRACE" pattern="..G.G" />
               <p className="caption">
-                Given <W>CRANE</W>, <W>BLAST</W> and their colours, <W>TRACE</W>{' '}
-                can't be the secret word: T, R and C have already come back
-                dark. You also know exactly what colours it would get: A and E
-                green, in the same spots as before, and the rest dark. The
-                answer is predictable and you learn nothing new, so it rules out
-                no other words: <strong>0 bits</strong>.
+                Given <Word>CRANE</Word>, <Word>BLAST</Word> and their colours,{' '}
+                <Word>TRACE</Word> can't be the secret word: T, R and C have
+                already come back dark. You also know exactly what colours it
+                would get: A and E green, in the same spots as before, and the
+                rest dark. The answer is predictable and you learn nothing new,
+                so it rules out no other words: <strong>0 bits</strong>.
               </p>
               <Row word="BEACH" pattern=".YG.Y" />
               <p className="caption">
-                <W>BEACH</W>, on the other hand, asks a question you can't
+                <Word>BEACH</Word>, on the other hand, asks a question you can't
                 answer yet. From your board, you already know B and C aren't in
                 the secret word and the A goes in the middle. What you don't
                 know is whether it has an H. You can't predict that, so whatever
@@ -299,11 +302,11 @@ export function Help() {
               </p>
               <p className="caption">
                 In our game, five of the 8 words that could work as the secret
-                word have an H: <W>SHADE, SHAKE, SHAME, SHAPE, SHAVE</W>. Three
-                don't: <W>SPADE, SUAVE, USAGE</W>. So whichever colour the H
-                gets, about half the words are ruled out. Halving the words is{' '}
-                <strong>1 bit</strong>. BEACH gets 0.95, just under 1, because 5
-                and 3 isn't quite half.
+                word have an H: <Word>SHADE, SHAKE, SHAME, SHAPE, SHAVE</Word>.
+                Three don't: <Word>SPADE, SUAVE, USAGE</Word>. So whichever
+                colour the H gets, about half the words are ruled out. Halving
+                the words is <strong>1 bit</strong>. BEACH gets 0.95, just under
+                1, because 5 and 3 isn't quite half.
               </p>
               <p className="caption">
                 If a guess could cut the words in half again, down to a quarter,
@@ -329,15 +332,15 @@ export function Help() {
               </p>
               <p>
                 To find the hint, the helper does what you just did with{' '}
-                <W>TRACE</W> and <W>BEACH</W>, but for every one of the{' '}
-                <strong>12,972 words</strong> you're allowed to type. For each
-                word, it looks at the 8 words that still agree with the colours
-                on your board and works out how many of them that word would
-                usually rule out. The word that usually rules out the most
+                <Word>TRACE</Word> and <Word>BEACH</Word>, but for every one of
+                the <strong>12,972 words</strong> you're allowed to type. For
+                each word, it looks at the 8 words that still agree with the
+                colours on your board and works out how many of them that word
+                would usually rule out. The word that usually rules out the most
                 becomes the top suggestion, shown with its entropy.
               </p>
               <p>
-                In our game, that's <W>DUMPS</W>:{' '}
+                In our game, that's <Word>DUMPS</Word>:{' '}
                 <strong>2.75 bits out of a possible 3</strong>. Whatever colours
                 it gets back, it rules out at least 6 of the 8.
               </p>
@@ -346,15 +349,15 @@ export function Help() {
           visual={
             <>
               <p className="label">
-                If you guess <W>DUMPS</W> and you see…
+                If you guess <Word>DUMPS</Word> and you see…
               </p>
-              {DUMPS.map(([pattern, first, second]) => (
+              {DUMPS_OUTCOMES.map(([pattern, first, second]) => (
                 <p className="result" key={pattern}>
-                  <Mini pattern={pattern} /> it must be <W>{first}</W>
+                  <Mini pattern={pattern} /> it must be <Word>{first}</Word>
                   {second && (
                     <>
                       {' '}
-                      or <W>{second}</W>
+                      or <Word>{second}</Word>
                     </>
                   )}
                 </p>
@@ -369,24 +372,25 @@ export function Help() {
             <>
               <p>
                 You can, and sometimes it's the right move. In our game,{' '}
-                <W>SHAKE</W> is the secret word, but you don't know that.
+                <Word>SHAKE</Word> is the secret word, but you don't know that.
                 Guessing it gives you a 1 in 8 chance of winning straight away.
               </p>
               <p>
-                If it's wrong, though, you may not learn much. If <W>SHAKE</W>{' '}
-                comes back with every letter green except the K, the secret word
-                must be <W>SHADE</W>, <W>SHAME</W>, <W>SHAPE</W> or <W>SHAVE</W>
-                . They differ only in their fourth letter, and SHAKE's fourth
+                If it's wrong, though, you may not learn much. If{' '}
+                <Word>SHAKE</Word> comes back with every letter green except the
+                K, the secret word must be <Word>SHADE</Word>,{' '}
+                <Word>SHAME</Word>, <Word>SHAPE</Word> or <Word>SHAVE</Word>.
+                They differ only in their fourth letter, and SHAKE's fourth
                 letter is a K, which none of them has. So all SHAKE tells you is
                 that the fourth letter isn't K, with no clue to what it is, and
                 you still have <strong>4 words</strong> left. Finding the right
                 one could take several more guesses and some luck.
               </p>
               <p>
-                <W>DUMPS</W> isn't one of the possible words left, so it can't
-                win this turn. But whatever colours it gets back, you're left
-                with at most 2 words, and 6 times out of 8 with just one, so
-                you'd win on your next guess. With these 8 words, that's the
+                <Word>DUMPS</Word> isn't one of the possible words left, so it
+                can't win this turn. But whatever colours it gets back, you're
+                left with at most 2 words, and 6 times out of 8 with just one,
+                so you'd win on your next guess. With these 8 words, that's the
                 better bet.
               </p>
             </>
@@ -394,9 +398,9 @@ export function Help() {
           visual={
             <>
               <p className="label">
-                If you guess <W>SHAKE</W> and you see…
+                If you guess <Word>SHAKE</Word> and you see…
               </p>
-              {SHAKE.map(([pattern, text]) => (
+              {SHAKE_OUTCOMES.map(([pattern, text]) => (
                 <p className="result" key={pattern}>
                   <Mini pattern={pattern} /> {text}
                 </p>
